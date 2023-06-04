@@ -1,0 +1,36 @@
+<!-- raw_material_usage.html -->
+
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <div class="row my-4">
+    <div class="col-md-10">
+      <div class="border bg-white text-center shadow offset-2 p-3">
+        <h3>Raw Material Usages</h3>
+
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Raw Material</th>
+              <th>Quantity Used</th>
+              <th>Usage Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for usage in raw_material_usages %}
+            <tr>
+              <td>{{ usage.raw_material }}</td>
+              <td>{{ usage.quantity_used }}</td>
+              <td>{{ usage.usage_date }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3">No raw material usages found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

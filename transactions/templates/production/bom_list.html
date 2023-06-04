@@ -1,0 +1,54 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<div class="container">
+  <div class="row my-4">
+    <div class="col-md-10">
+      <div class="border bg-white text-center shadow offset-2 p-3">
+        <h3>(BOM) List</h3>
+
+        <form method="GET" action="{% url 'bom-list' %}" class="mb-3">
+          <div class="input-group">
+            <input
+              type="text"
+              name="query"
+              class="form-control"
+              placeholder="Search by BOM Name or ID"
+              value="{{ query }}"
+            />
+            <div class="input-group-append">
+              <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+          </div>
+        </form>
+
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>BOM ID</th>
+              <th>BOM Name</th>
+              <th>Raw Material</th>
+              <th>Inventory</th>
+              <th>Quantity Used</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for bom_raw_material in bom_raw_materials %}
+            <tr>
+              <td>{{ bom_raw_material.bom.id }}</td>
+              <td>{{ bom_raw_material.bom.name }}</td>
+              <td>{{ bom_raw_material.raw_material.name }}</td>
+              <td>{{ bom_raw_material.raw_material.quantity }}</td>
+              <td>{{ bom_raw_material.quantity }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5">No BOM Raw Materials found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

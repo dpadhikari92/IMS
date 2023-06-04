@@ -1,0 +1,203 @@
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'bootstrap/bootstrap.min.css' %}"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.0/css/all.css"
+      integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ"
+      crossorigin="anonymous"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/dialogbox.css' %}"
+    />
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/navbar.css' %}"
+    />
+
+    <title>AdminSite</title>
+  </head>
+  <body>
+    <div id="dialogoverlay"></div>
+    <div id="dialogbox">
+      <div class="align-middle">
+        <div id="dialogboxhead"></div>
+        <div id="dialogboxbody"></div>
+        <div id="dialogboxfoot"></div>
+      </div>
+    </div>
+    <!-- SIDEBAR -->
+
+    <section id="sidebar">
+      {% if user.is_authenticated %}
+      <a href="{% url 'home'%}" class="brand"
+        ><i class="bx bxs-smile icon"></i> IMS Lean</a
+      >
+      <ul class="side-menu">
+        <li>
+          <a href="{% url 'home'%}" class="active"
+            ><i class="bx bxs-dashboard icon"></i> Dashboard</a
+          >
+        </li>
+        <li class="divider" data-text="main">Main</li>
+        <li>
+          <a href=""
+            ><i class="bx bxs-inbox icon"></i> Production
+            <i class="bx fa-solid fa-industry icon-right"></i
+          ></a>
+          <ul class="side-dropdown">
+            <li>
+              <a href="{% url 'bom'%}">Create New Bom</a>
+            </li>   
+            <li>
+              <a href="{% url 'production' %}">Place Production Order</a>
+            </li>
+       
+          </ul>
+        </li>
+
+        <li>
+          <a href="#"
+            ><i class="bx bxs-inbox icon"></i> Purchase
+            <i class="bx fa-solid fa-cart-shopping icon-right"></i
+          ></a>
+          <ul class="side-dropdown">
+            <li>
+              <a href="{% url 'select-supplier'%}">Place Purchase Order</a>
+            </li>
+            <li>
+              <a href="{% url 'purchases-list'%}"> Purchase History </a>
+            </li>
+            <li>
+              <a href="{% url 'new-supplier'%}"> Add Supplier </a>
+            </li>
+          </ul>
+        </li>
+
+        <li>
+          <a href="#"
+            ><i class="bx bxs-inbox icon"></i> Supplier
+            <i class="bx fa-solid fa-truck-field icon-right"></i
+          ></a>
+          <ul class="side-dropdown">
+            <li>
+              <a href="{% url 'new-supplier'%}">Add New Supplier</a>
+            </li>
+            <li>
+              <a href="{% url 'suppliers-list'%}"> View Supplier List </a>
+            </li>
+          </ul>
+        </li>
+
+        <li>
+          <a href="salses.html"
+            ><i class="bx bxs-inbox icon"></i>Finish Goods
+            <i class="bx fa-solid fa-store icon-right"></i
+          ></a>
+          <ul class="side-dropdown">
+            <li>
+              <a href="{% url 'sales-list'%}">Place Sales Order</a>
+            </li>
+            <li>
+              <a href="{% url 'sales-list'%}"> Pending Sales Order </a>
+            </li>
+          </ul>
+        </li>
+
+        <li>
+          <a href="{% url 'new-stock'%}"
+            ><i class="bx bxs-inbox icon"></i> Raw Material
+            <i class="bx fa-solid fa-store icon-right"></i
+          ></a>
+          <ul class="side-dropdown">
+            <li>
+              <a href="{% url 'new-stock'%}">Add New Raw Material </a>
+            </li>
+            <li>
+              <a href="{% url 'inventory'%}">Raw Material Inventory</a>
+            </li>
+
+          </ul>
+        </li>
+        </li>
+
+        <li class="divider" data-text="table and forms">Table and forms</li>
+
+        </li>
+      </ul>
+      {% endif %}
+      <div class="ads">
+        <div class="wrapper">
+          <a href="{% url 'logout'%}" class="btn-upgrade">Logout</a>
+          <p>
+            Become a <span>PRO</span> member and enjoy <span>All Features</span>
+          </p>
+        </div>
+      </div>
+    </section>
+    <!-- SIDEBAR -->
+
+    <!-- NAVBAR -->
+    <section id="content">
+      <!-- NAVBAR -->
+      <nav>
+        <i class="bx bx-menu toggle-sidebar"></i>
+        <form action="#">
+          <div class="form-group">
+            <input type="text" placeholder="Search..." />
+            <i class="bx bx-search icon"></i>
+          </div>
+        </form>
+        <a href="#" class="nav-link">
+          <i class="bx bxs-bell icon"></i>
+          <span class="badge"></span>
+        </a>
+        <a href="#" class="nav-link">
+          <i class="bx bxs-message-square-dots icon"></i>
+          <span class="badge"></span>
+        </a>
+        <span class="divider"></span>
+        <div class="profile">
+          <img
+            src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cGVvcGxlfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+            alt=""
+          />
+          <ul class="profile-link">
+            <li>
+              <a href="{% url 'logout'%}"
+                ><i class="bx bxs-log-out-circle"></i> Logout</a
+              >
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <!-- NAVBAR -->
+      {% block content %}{% endblock content %}
+    </section>
+    <!-- NAVBAR -->
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'bootstrap/jquery-3.3.1.slim.min.js' %}"></script>
+    <script src="{% static 'bootstrap/popper.min.js' %}"></script>
+    <script src="{% static 'bootstrap/bootstrap.min.js' %}"></script>
+  </body>
+</html>

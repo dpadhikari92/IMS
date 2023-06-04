@@ -1,0 +1,58 @@
+{%extends "base.html"%} {%load crispy_forms_tags %} {%block content%}
+
+<div class="container">
+  <div class="row my-4">
+    <div class="col-md-10">
+      <div class="border bg-white text-center shadow offset-3 p-4">
+        <div style="height: 300px">
+          {%for message in messages%} {%if message%}
+          <div class="alert alert-{{message.tags}}">{{message}}</div>
+          {%endif%} {%endfor%}
+          <div class="row" style="color: #4e4e4e; font-style: bold; font-size: 1.5rem; ">
+            <div class="col-md-8 ">Create New BOM </div>
+                 <div class="col-md-4  ">               
+                <div style="float:right;"> <a class="btn btn-info" href="{% url 'production-list' %}">Production List</a> </div>
+            </div>
+        </div>
+
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group mx-4 mt-4">
+              <select name="bom" class="form-control" required>
+                <option value="{{ bom.id }}">
+                  -- Select Bom--{{ bom.name }}
+                </option>
+
+                {% for bom in boms %}
+                <option value="{{bom.id}}">{{bom.name}}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group mx-4 mt-4">
+              <input
+                type="number"
+                step="any"
+                required
+                name="quantities"
+                class="form-control"
+                placeholder="Quantity"
+              />
+            </div>
+          <br/>
+
+            <div class="form-group mx-4 mt-4">
+              <button type="submit" class="btn login-btn btn-info btn-m">
+                Create Production Order
+              </button>
+            </div>
+          </form>        
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock content %}
+

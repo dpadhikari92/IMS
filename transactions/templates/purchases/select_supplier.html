@@ -1,0 +1,36 @@
+{% extends "base.html" %} {% block title %} New Purchase {% endblock title %}
+{%block content %}
+
+<div class="container p-2">
+  <div class="row my-2">
+    <div class="col-md-10 offset-1 shadow bg-light">
+      <!-- Log on to codeastro.com for more projects -->
+      <div
+        class="row"
+        style="color: #4e4e4e; font-style: bold; font-size: 2rem"
+      >
+        <div class="col-md-9">Purchase</div>
+      </div>
+
+      <div style="border-bottom: 1px solid white"></div>
+
+      <br />
+
+      <form method="post">
+        {% csrf_token %} {% for field in form.visible_fields %}
+        <div class="form-group">{{ field.label_tag }} {{ field }}</div>
+        {% endfor %}
+
+        <br />
+        <div class="align-middle p-2">
+          <button type="submit" class="btn btn-success">Next</button>
+          <a href="{% url 'purchases-list' %}" class="btn btn-secondary"
+            >Cancel</a
+          >
+        </div>
+      </form>
+
+      {% endblock content %}
+    </div>
+  </div>
+</div>
