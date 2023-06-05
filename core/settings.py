@@ -26,7 +26,11 @@ SECRET_KEY = 'qyu(9l9v%^+r(vt#ecf+36#lis516#3bo5@bo-rd*d%a=!%8#!'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+<<<<<<< HEAD
 ALLOWED_HOSTS = ['https://ims-dpadhikari92.vercel.app/']
+=======
+ALLOWED_HOSTS = ['ims-v7g8-dpadhikari92.vercel.app']
+>>>>>>> 0a74cc4c90df5d8c75102281b2a9b1f17de71694
 
 
 # Application definition
