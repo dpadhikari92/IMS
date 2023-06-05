@@ -89,15 +89,24 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+'''DATABASES = {
+    'default': {
+        'ENGINE':  'django.db.backends.postgresql'',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}'''
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'railway',                      
+        'USER': 'postgres',
+        'PASSWORD': 'NMW3LzH6jFYCWVZepvFp',
+        'HOST': 'containers-us-west-191.railway.app',
+        'PORT': '6681',
     }
 }
 
-
-DATABASES['default'] = dj_database_url.config()
+#DATABASES['default'] = dj_database_url.config()
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -129,14 +138,14 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+#USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / "staticfiles_build" / "static"
+STATIC_ROOT = os.path.join(BASE_DIR ,"staticfiles_build", "static")
 
 # bootstrap template crispy-form uses
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
