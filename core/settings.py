@@ -27,7 +27,7 @@ SECRET_KEY = 'qyu(9l9v%^+r(vt#ecf+36#lis516#3bo5@bo-rd*d%a=!%8#!'
 DEBUG =True
 
 
-ALLOWED_HOSTS = ['ims-og26km8iv-dpadhikari92.vercel.app',]
+ALLOWED_HOSTS =['ims-pied.vercel.app']
 
 
 
