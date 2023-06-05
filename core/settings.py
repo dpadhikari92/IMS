@@ -24,10 +24,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'qyu(9l9v%^+r(vt#ecf+36#lis516#3bo5@bo-rd*d%a=!%8#!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG =True
 
 
-ALLOWED_HOSTS = ['ims-v7g8-dpadhikari92.vercel.app']
+ALLOWED_HOSTS = []
 
 
 
