@@ -21,6 +21,12 @@
 
         <div class="form-group">
           {{ form.name.errors }}
+          <label for="{{ form.item_code.id_for_label }}">Item Code:</label>
+          {{ form.item_code }}
+        </div>
+
+        <div class="form-group">
+          {{ form.name.errors }}
           <label for="{{ form.name.id_for_label }}">Name:</label>
           {{ form.name }}
         </div>
@@ -28,6 +34,16 @@
           {{ form.quantity.errors }}
           <label for="{{ form.quantity.id_for_label }}">Quantity:</label>
           {{ form.quantity }}
+        </div>
+        <div class="form-group">
+          {{ form.quantity.errors }}
+          <label for="{{ form.hsn.id_for_label }}">HSN No:</label>
+          {{ form.hsn }}
+        </div>
+        <div class="form-group">
+          {{ form.quantity.errors }}
+          <label for="{{ form.cas.id_for_label }}">CAS No:</label>
+          {{ form.cas }}
         </div>
 
         <br /><!-- Log on to codeastro.com for more projects -->

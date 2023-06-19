@@ -1,0 +1,33 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<div class="container">
+  <div class="row my-4">
+    <div class="col-md-10">
+      <div class="border bg-white text-center shadow offset-2 p-3">
+        <h3>BOM Details</h3>
+        <h4>BOM Name: {{ bom.name }}</h4>
+
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Raw Material Name</th>
+              <th>Quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for bom_raw_material in bom_raw_materials %}
+            <tr>
+              <td>{{ bom_raw_material.raw_material.name }}</td>
+              <td>{{ bom_raw_material.quantity }} kg.</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2">No raw materials found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

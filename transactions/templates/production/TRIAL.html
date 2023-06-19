@@ -1,0 +1,134 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<div class="container p-2">
+  <div class="row my-2">
+    <div class="col-md-10 offset-1 shadow bg-light">
+  <!-- Log on to codeastro.com for more projects -->
+  <div class="row" style="color: #4e4e4e; font-style: bold; font-size: 2rem; ">
+      <div class="col-md-8 ">Create New BOM </div>
+      <div class="col-md-4 p-2">
+        <div class="d-flex justify-content-end">
+          <a class="btn btn-info mr-2" href="{% url 'bom-list' %}">Bom List</a>
+          <a class="btn btn-secondary" href="{% url 'production' %}">Production Order</a>
+        </div>
+      </div>
+      
+  </div>
+  
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="name">BOM Name:</label>
+            <input
+              type="text"
+              class="form-control"
+              name="name"
+              id="name"
+              placeholder="Enter BOM Name"
+              required
+            />
+          </div>
+          <br />
+          <div id="sfg">
+            <div class="row sfg">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="sfg">SFG:</label>
+                  <select
+                    name="sfg"
+                    class="form-control"
+                    id="sfg"
+                  >
+                    <option value="" selected disabled>
+                      Select Raw Material
+                    </option>
+                    {% for bom in bom_list %}
+                    <option value="{{ bom.pk }}">{{ bom.name }}</option>
+                    {% endfor %}                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="quantity_sfg">Quantity:</label>
+                  <input
+                    type="number"
+                    step="any"
+                    class="form-control"
+                    name="quantity_sfg"
+                    id="quantity_sfg"
+                    placeholder="Enter Quantity"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="col-md-2">
+                <button
+                  type="button"
+                  class="btn btn-danger remove-raw-material"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary" id="add-raw-material">
+            Add Raw Material
+          </button>
+          <br /><br />
+          <button type="submit" class="btn btn-primary">Create BOM</button>
+        </form>
+      </div>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          const addRawMaterialBtn = document.getElementById("add-raw-material");
+          const rawMaterialsContainer = document.getElementById(
+            "raw-materials-container"
+          );
+
+          let rawMaterialCount = 1;
+
+          addRawMaterialBtn.addEventListener("click", function () {
+            const rawMaterialTemplate = `
+        <div class="row raw-material">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="raw-material-${rawMaterialCount}">Raw Material:</label>
+              <select name="raw_materials[]" class="form-control" id="raw-material-${rawMaterialCount}">
+                <option value="" selected disabled>Select Raw Material</option>
+                {% for raw_material in raw_materials %}
+                <option value="{{ raw_material.id }}">{{ raw_material.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="quantity-${rawMaterialCount}">Quantity:</label>
+              <input type="number" step="any" class="form-control" name="quantities[]" id="quantity-${rawMaterialCount}" placeholder="Enter Quantity" required />
+            </div>
+          </div>
+          <div class="col-md-2">
+            <button type="button" class="btn btn-danger remove-raw-material">Remove</button>
+          </div>
+        </div>
+      `;
+
+            rawMaterialsContainer.insertAdjacentHTML(
+              "beforeend",
+              rawMaterialTemplate
+            );
+            rawMaterialCount++;
+          });
+
+          rawMaterialsContainer.addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-raw-material")) {
+              e.target.closest(".raw-material").remove();
+            }
+          });
+        });
+      </script>
+
+      {% endblock content %}
+    </div>
+  </div>
+</div>

@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import DateInput
 from django.forms import formset_factory
 from .models import (
     Supplier, 
@@ -10,6 +11,9 @@ from .models import (
     SaleBillDetails,
     BOM,
     Production,
+    FGSFG,
+   
+    
 )
 from inventory.models import Stock
 
@@ -31,10 +35,25 @@ class PurchaseItemForm(forms.ModelForm):
         self.fields['stock'].queryset = Stock.objects.filter(is_deleted=False)
         self.fields['stock'].widget.attrs.update({'class': 'textinput form-control setprice stock', 'required': 'true'})
         self.fields['quantity'].widget.attrs.update({'class': 'textinput form-control setprice quantity', 'min': '0', 'required': 'true'})
-        self.fields['perprice'].widget.attrs.update({'class': 'textinput form-control setprice price', 'min': '0', 'required': 'true'})
+        self.fields['perprice'].widget.attrs.update({'class': 'textinput form-control setprice price', 'min': '0', 'required': 'true'}) 
+        self.fields['mfg_date'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Select a manufacturing date',
+            'type': 'date',
+            'required': 'true'
+        })
+        self.fields['exp_date'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Select a manufacturing date',
+            'type': 'date',
+            'required': 'true'
+        })
+        
+        self.fields['supplier_no'].widget.attrs.update({'class': 'textinput form-control'})
+ 
     class Meta:
         model = PurchaseItem
-        fields = ['stock', 'quantity', 'perprice']
+        fields = ['stock', 'quantity', 'perprice','mfg_date','exp_date','supplier_no','freight']
 
 # formset used to render multiple 'PurchaseItemForm'
 PurchaseItemFormset = formset_factory(PurchaseItemForm, extra=1)
@@ -43,7 +62,7 @@ PurchaseItemFormset = formset_factory(PurchaseItemForm, extra=1)
 class PurchaseDetailsForm(forms.ModelForm):
     class Meta:
         model = PurchaseBillDetails
-        fields = ['eway','veh', 'destination', 'po', 'cgst', 'sgst', 'igst', 'cess', 'tcs', 'total']
+        fields = ['eway','veh', 'destination', 'po', 'cgst', 'sgst', 'igst', 'freight' ,'total']
 
 
 # form used for supplier
@@ -118,3 +137,5 @@ class ProductionForm(forms.ModelForm):
     class Meta:
         model = Production
         fields = ['bom', 'quantity']
+        
+        

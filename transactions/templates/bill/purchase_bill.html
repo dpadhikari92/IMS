@@ -1,4 +1,4 @@
-{% extends bill_base %} {% load static %} {% block title %} Purchases Bill No :
+{% extends bill_base %} {% load static %} {% block title %} Purchases Batch No :
 {{ bill.billno }}{% endblock title %} {% block content %}
 
 <div class="container p-2">
@@ -13,7 +13,7 @@
           border-bottom: 1px solid white;
         "
       >
-        Purchase Bill No : {{ bill.billno }}
+        Purchase Batch No. : {{ bill.billno }}
       </div>
 
       <!-- <br><br> --><!-- Log on to codeastro.com for more projects -->
@@ -120,7 +120,7 @@
                             class="inner-box"
                             style="width: 25%; font-weight: bold"
                           >
-                            &nbsp;EWAY NO
+                            &nbsp;Sup Invoice Date
                           </td>
                           <td class="inner-box align-middle" style="width: 25%">
                             <input
@@ -132,23 +132,8 @@
                             />
                           </td>
                         </tr>
-                        <tr>
-                          <td
-                            class="inner-box"
-                            style="width: 25%; font-weight: bold"
-                          >
-                            &nbsp;VEH NO
-                          </td>
-                          <td class="inner-box align-middle" style="width: 25%">
-                            <input
-                              type="text"
-                              name="veh"
-                              class="align-middle"
-                              style="border: 0; overflow: hidden"
-                              value="{% if billdetails.veh %}{{ billdetails.veh }}{% endif %}"
-                            />
-                          </td>
-                        </tr>
+                        <tr></tr>
+
                         <tr>
                           <td
                             class="inner-box"
@@ -278,24 +263,28 @@
                         </tr>
                         {% for item in items %}
                         <tr style="height: auto">
-                          <td class="inner-box" style="width: 5%">
+                          <td class="inner-box" style="width: 5%; text-align: center">
                             &nbsp; {{ forloop.counter }}
                           </td>
-                          <td class="inner-box" style="width: 30%">
+                          <td class="inner-box" style="width: 30%; text-align: center">
                             &nbsp; {{ item.stock.name }}
                           </td>
-                          <td class="inner-box" style="width: 12%">&nbsp;</td>
-                          <td class="inner-box" style="width: 12%">
+                          <td class="inner-box" style="width: 12%; text-align: center">
+                            &nbsp; {{ item.stock.hsn }}
+                          </td>
+                          <td class="inner-box" style="width: 12%; text-align: center">
                             &nbsp; {{ item.quantity }}
                           </td>
-                          <td class="inner-box" style="width: 12%">
+                          <td class="inner-box" style="width: 12%; text-align: center">
                             &nbsp; {{ item.perprice }}
                           </td>
-                          <td class="inner-box" style="width: 12%">
+                          <td class="inner-box" style="width: 12%; text-align: center">
                             &nbsp;{{ item.totalprice }}
                           </td>
-                          <td class="inner-box" style="width: 5%">&nbsp;0</td>
+                          <td class="inner-box" style="width: 5%; text-align: center">&nbsp;0</td>
                         </tr>
+                        
+                        
                         {% endfor %}
                       </tbody>
                     </table>
@@ -313,29 +302,33 @@
                       "
                     >
                       <tbody>
+                        <br />
+
+                        <td
+                        class="inner-box"
+                        style="width: 30%; font-weight: bold"
+                      >
+                        &nbsp;Freight/Insurance
+                      </td>
+                      <td class="inner-box align-middle" style="width: 30%">
+                        &nbsp;
+                        <input
+                          type="text"
+                          name="veh"
+                          class="align-middle"
+                          pattern="[0-9]+\.[0-9]+"
+                          style="border: 0; overflow: hidden"
+                          value="{% if billdetails.veh %}{{ billdetails.veh }}{% endif %}"
+                        />
+                      </td>
+                    </tr>
                         <tr>
-                          <td
-                            class="inner-box"
-                            style="width: 35%; text-align: center"
-                            rowspan="6"
-                          >
-                            <p>
-                              <span style="font-weight: bold"
-                                >BANK DETAILS <br />
-                              </span>
-                              <br />
-                              ABC <br />
-                              AC NO-0000 0000 0000 0000<br />
-                              IFSC CODE - ABCD 010 0110 <br />
-                              BRANCH <br />
-                              PH NO -0000 0000
-                            </p>
-                          </td>
+                          <br />
                           <td
                             class="inner-box"
                             style="width: 30%; font-weight: bold"
                           >
-                            &nbsp;CGST @ 2.5%
+                            &nbsp;CGST @ 9%
                           </td>
                           <td class="inner-box align-middle" style="width: 30%">
                             &nbsp;
@@ -351,7 +344,7 @@
                         </tr>
                         <tr>
                           <td class="inner-box" style="font-weight: bold">
-                            &nbsp;SGST @ 2.5%
+                            &nbsp;SGST @ 9%
                           </td>
                           <td class="inner-box align-middle">
                             &nbsp;
@@ -367,7 +360,7 @@
                         </tr>
                         <tr>
                           <td class="inner-box" style="font-weight: bold">
-                            &nbsp;IGST @ 5%
+                            &nbsp;IGST @ 18%
                           </td>
                           <td class="inner-box align-middle">
                             &nbsp;
@@ -383,41 +376,13 @@
                         </tr>
                         <tr>
                           <!-- Log on to codeastro.com for more projects -->
-                          <td class="inner-box" style="font-weight: bold">
-                            &nbsp;CESS @ 400/PMT
-                          </td>
-                          <td class="inner-box align-middle">
-                            &nbsp;
-                            <input
-                              type="text"
-                              name="cess"
-                              class="align-middle"
-                              pattern="[0-9]+\.[0-9]+"
-                              style="border: 0; overflow: hidden"
-                              value="{% if billdetails.cess %}{{ billdetails.cess }}{% endif %}"
-                            />
-                          </td>
                         </tr>
+
                         <tr>
                           <td class="inner-box" style="font-weight: bold">
-                            &nbsp;TCS @ 1%
+                            &nbsp;TOTAL          ₹
                           </td>
-                          <td class="inner-box align-middle">
-                            &nbsp;
-                            <input
-                              type="text"
-                              name="tcs"
-                              class="align-middle"
-                              pattern="[0-9]+\.[0-9]+"
-                              style="border: 0; overflow: hidden"
-                              value="{% if billdetails.tcs %}{{ billdetails.tcs }}{% endif %}"
-                            />
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="inner-box" style="font-weight: bold">
-                            &nbsp;TOTAL
-                          </td>
+                         
                           <td class="inner-box align-middle">
                             &nbsp;
                             <input

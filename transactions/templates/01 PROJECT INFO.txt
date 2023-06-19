@@ -1,6 +1,6 @@
 **Log on to codeastro.com for more projects!**
 
-**Developed By DP ADHIKARI**
+**Developed By Akash Roshan**
 
 **Instructions**
 - Install the Requirements: pip install -r requirements.txt

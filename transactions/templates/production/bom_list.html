@@ -25,30 +25,28 @@
             <tr>
               <th>BOM ID</th>
               <th>BOM Name</th>
-              <th>Raw Material</th>
-              <th>Inventory</th>
-              <th>Quantity Used</th>
             </tr>
           </thead>
           <tbody>
             {% for bom_raw_material in bom_raw_materials %}
             <tr>
               <td>{{ bom_raw_material.bom.id }}</td>
-              <td>{{ bom_raw_material.bom.name }}</td>
-              <td>{{ bom_raw_material.raw_material.name }}</td>
-              <td>{{ bom_raw_material.raw_material.quantity }}</td>
-              <td>{{ bom_raw_material.quantity }}</td>
+              <td>
+                <a href="{% url 'bom-details' bom_raw_material.bom.id %}"
+                  >{{ bom_raw_material.bom.name }}</a
+                >
+
+                {% empty %}
+                <tr>
+                  <td colspan="3">No BOM Raw Materials found.</td>
+                </tr>
+                {% endfor %}
+              </td>
             </tr>
-            {% empty %}
-            <tr>
-              <td colspan="5">No BOM Raw Materials found.</td>
-            </tr>
-            {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
   </div>
 </div>
-
 {% endblock %}

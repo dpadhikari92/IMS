@@ -60,15 +60,30 @@
         <li class="divider" data-text="main">Main</li>
         <li>
           <a href=""
+            ><i class="bx bxs-inbox icon"></i> Bill Of Material
+            <i class="bx fa-solid fa-industry icon-right"></i
+          ></a>
+          <ul class="side-dropdown">
+            <li>
+              <a href="{% url 'bom'%}">Create Bom</a>
+            </li>   
+            <li>
+              <a href="{% url 'bomfg' %}">Finished Goods</a>
+            </li>
+       
+          </ul>
+        </li>
+        <li>
+          <a href=""
             ><i class="bx bxs-inbox icon"></i> Production
             <i class="bx fa-solid fa-industry icon-right"></i
           ></a>
           <ul class="side-dropdown">
             <li>
-              <a href="{% url 'bom'%}">Create New Bom</a>
+              <a href="{% url 'production'%}">Semi Finished Goods</a>
             </li>   
             <li>
-              <a href="{% url 'production' %}">Place Production Order</a>
+              <a href="{% url 'bomfg' %}">Finished Goods</a>
             </li>
        
           </ul>
@@ -118,12 +133,32 @@
             <li>
               <a href="{% url 'new-stock'%}">Add New Raw Material </a>
             </li>
+           
+
+          </ul>
+        </li>
+
+        <li>
+          <a href="{% url 'new-stock'%}"
+            ><i class="bx bxs-inbox icon"></i> Inventory
+            <i class="bx fa-solid fa-store icon-right"></i
+          ></a>
+          <ul class="side-dropdown">
+            <li>
+              <a href="{% url 'production-listfg'%}">FG Inventory </a>
+            </li>
+            <li>
+              <a href="{% url 'production-list'%}">SFG Inventory </a>
+            </li>
+         
             <li>
               <a href="{% url 'inventory'%}">Raw Material Inventory</a>
             </li>
 
           </ul>
         </li>
+        
+     
         </li>
 
         <li class="divider" data-text="table and forms">Table and forms</li>

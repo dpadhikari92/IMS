@@ -29,7 +29,7 @@ DEBUG =True
 
 ALLOWED_HOSTS =['ims-pied.vercel.app']
 
-
+#
 
 # Application definition
 
@@ -102,9 +102,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'railway',                      
         'USER': 'postgres',
-        'PASSWORD': 'NMW3LzH6jFYCWVZepvFp',
-        'HOST': 'containers-us-west-191.railway.app',
-        'PORT': '6681',
+        'PASSWORD': '4hidQywBQX2X862DE8xH',
+        'HOST': 'containers-us-west-41.railway.app',
+        'PORT': '6786',
     }
 }
 

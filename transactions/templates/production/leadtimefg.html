@@ -1,3 +1,5 @@
+<!-- production/leadtimesfg.html -->
+
 {% extends "base.html" %} {% load crispy_forms_tags %} {% block content %}
 <div class="container">
   <div class="row my-4">
@@ -11,13 +13,13 @@
             class="row"
             style="color: #4e4e4e; font-style: bold; font-size: 1.5rem"
           >
-            <div class="col-md-8">Generate SFG Production order</div>
+            <div class="col-md-8">Complete Production Order SFG</div>
             <div class="col-md-4">
               <div style="float: right">
                 <a
-                  class="btn btn-secondary mr-2"
-                  href="{% url 'production-record' %}"
-                  >Complete Production Order</a
+                  class="btn btn-info"
+                  href="{% url 'production-leadtimelistfg' %}"
+                  >Traceability Sheet</a
                 >
               </div>
             </div>
@@ -27,39 +29,35 @@
             {% csrf_token %}
 
             <div class="form-group mx-4 mt-4">
-              <select name="bom" class="form-control" required>
-                <option value="">-- Select Bom --</option>
-                {% for bom in boms %}
-                <option value="{{ bom.id }}">{{ bom.name }}</option>
+              <label for="sfg_id">Select SFG:</label>
+              <select name="sfg_id" id="sfg_id" class="form-control" required>
+                <option value="">-- Select SFG --</option>
+                {% for production in productions %}
+                <option value="{{ production.id }}">
+                  {{ production.bom }}
+                </option>
                 {% endfor %}
               </select>
             </div>
 
             <div class="form-group mx-4 mt-4">
+              <label for="rawcode">Raw Material Code:</label>
               <input
-                type="number"
-                step="any"
+                type="text"
                 required
-                name="quantities"
+                name="rawcode"
+                id="rawcode"
                 class="form-control"
-                placeholder="Quantity in kg."
+                placeholder="Raw Material Code"
               />
             </div>
 
-            <br />
-
             <div class="form-group mx-4 mt-4">
               <button type="submit" class="btn login-btn btn-info btn-m">
-                Create Production Order
+                Submit Data
               </button>
             </div>
           </form>
-
-          {% if pdf_link %}
-          <div class="form-group mx-4 mt-4">
-            <p>Download production report: <a href="{{ pdf_link }}">PDF</a></p>
-          </div>
-          {% endif %}
         </div>
       </div>
     </div>

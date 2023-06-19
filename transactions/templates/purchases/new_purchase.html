@@ -5,19 +5,17 @@
 <div class="container p-2">
   <div class="row my-2">
     <div class="col-md-10 offset-1 shadow bg-light">
-  <!-- Log on to codeastro.com for more projects -->
-  <div class="row" style="color: #4e4e4e; font-style: bold; font-size: 2rem; ">
-      <div class="col-md-9 ">Invoice Details Purchase </div>
-           <div class="col-md-3 p-3 ">               
-          <div style="float:right;"> <a class="btn btn-info" href="{% url 'new-stock' %}">Add New Stock</a> </div>
-      </div>
-  </div>
-
-          <br /><!-- Log on to codeastro.com for more projects -->
+        <!-- Log on to codeastro.com for more projects -->
+ 
+        <center>
+          <h3>Invoice Purchase</h3>
+        </center>
+ 
+       
 
           <div class="panel panel-default">
             <div class="panel-heading panel-heading-text">Supplier Details</div>
-            <br/>
+           
             <div class="panel-body">
               <div class="form-group">
                 <label for="id_name" class="panel-body-text"
@@ -33,7 +31,7 @@
               </div>
 
               <div class="form-row">
-                <div class="form-group col-md-6">
+                <div class="form-group col-md-4">
                   <label for="id_phone" class="panel-body-text"
                     >Phone No:</label
                   >
@@ -45,7 +43,7 @@
                     disabled
                   />
                 </div>
-                <div class="form-group col-md-6">
+                <div class="form-group col-md-4">
                   <label for="id_gstin" class="panel-body-text"
                     >GSTIN No:</label
                   >
@@ -56,9 +54,11 @@
                     value="{{ supplier.gstin }}"
                     disabled
                   />
-                </div>
+                </div>                
+            
               </div>
             </div>
+            
             <!-- Log on to codeastro.com for more projects -->
           </div>
 
@@ -67,30 +67,30 @@
           <form method="post" class="panel panel-default">
             {% csrf_token %} {{ formset.management_form }}
 
-            <div class="panel-heading panel-heading-text">Product Details</div>
+            <a href="{% url 'new-stock' %}" > Add Stock</a>          
 
             <div id="stockitem">
               <div class="panel-body">
                 {% for form in formset %}
                 <div class="row form-row">
-                  <div class="form-group col-md-6">
+                  <div class="form-group col-md-2">
                     {{ form.stock.errors }}
                     <label class="panel-body-text">Stock:</label>
                     {{ form.stock }}
                   </div>
                   <!-- Log on to codeastro.com for more projects -->
                   <div class="form-group col-md-2">
-                    <label class="panel-body-text">Price per item:</label>
+                    <label class="panel-body-text">Price</label>
                     {{ form.perprice }}
                   </div>
                   <div class="form-group col-md-2">
                     {{ form.quantity.errors }}
-                    <label class="panel-body-text">Quantity:</label>
+                    <label class="panel-body-text">Qty KG:</label>
                     {{ form.quantity }}
                   </div>
                   <!-- Log on to codeastro.com for more projects -->
-                  <div class="form-group col-md-1">
-                    <label class="panel-body-text">Price:</label>
+                  <div class="form-group col-md-2">
+                    <label class="panel-body-text">Total</label>
                     <input
                       type="text"
                       class="textinput form-control totalprice"
@@ -99,6 +99,19 @@
                       required
                     />
                   </div>
+                  <div class="form-group col-md-2">
+                    <label class="panel-body-text" for="{{ form.supplier_no.id_for_label }}">Supplier Batch No:</label>
+                    {{ form.supplier_no }}
+                </div>
+                  <div class="form-group col-md-2">
+                    <label class="panel-body-text" for="{{ form.mfg_date.id_for_label }}">Mfg Date:</label>
+                    {{ form.mfg_date }}
+                </div>
+
+                <div class="form-group col-md-2">
+                  <label class="panel-body-text" for="{{ form.mfg_date.id_for_label }}">Exp Date:</label>
+                  {{ form.exp_date }}
+              </div>
                   <div class="form-group col-md-1">
                     <label class="panel-body-text" style="color: #000">.</label>
                     <button class="form-control btn btn-danger remove-form-row">

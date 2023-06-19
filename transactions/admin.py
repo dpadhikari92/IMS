@@ -9,7 +9,11 @@ from .models import (
     SaleBillDetails,
     BOM,
     BOMRawMaterial,
-    Production,
+    Production,  
+    FGSFG,
+    ProductionFG,
+    Leadtimesfg,
+    Leadtimefg,
     
     
 )
@@ -24,3 +28,8 @@ admin.site.register(PurchaseBillDetails)
 admin.site.register(SaleBill)
 admin.site.register(SaleItem)
 admin.site.register(SaleBillDetails)
+admin.site.register(Leadtimesfg)
+admin.site.register(FGSFG)
+
+admin.site.register(ProductionFG)
+admin.site.register( Leadtimefg)

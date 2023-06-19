@@ -23,8 +23,22 @@ urlpatterns = [
     
     path("bom/", views.create_bom, name="bom"),
     path("bom/list", views.bom_list, name="bom-list"),
+    path("bom/details/<int:bom_id>", views.bom_details, name="bom-details"),
+
+    path("bomfg/", views.create_productionfg, name="bomfg"),
+    path("bomfg/list", views.bom_listFG, name="bomfg-list"),
+    
+    
     path("production/", views.produce_item, name="production"),
     path("production/list", views.produce_list, name="production-list"),
+     path("production/listfg", views.produce_listfg, name="production-listfg"),
     
+    path("production/record", views.leadtimesfg, name="production-record"),  
+     path("production/recordfg", views.leadtimefg, name="production-recordfg"),   
+     path("production/leadtime", views.leadtimelist, name="production-leadtimelist"),  
+      path("production/leadtimefg", views.leadtimelistfg, name="production-leadtimelistfg"),    
+      
+      
+ 
   
 ]
