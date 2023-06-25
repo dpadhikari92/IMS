@@ -10,7 +10,7 @@ from django.views.generic import (
 )
 from django.http import FileResponse, HttpResponse
 import io
-from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import letter,landscape
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
@@ -443,6 +443,9 @@ def create_bom(request):
 
 
 
+from django.shortcuts import render, redirect
+from .models import Production
+
 def produce_item(request):
     if request.method == 'POST':
         bom_id = request.POST['bom']
@@ -466,7 +469,7 @@ def produce_item(request):
             messages.error(request, 'Insufficient inventory for the following raw materials:')
             for material, required_quantity in insufficient_raw_materials:
                 messages.error(request, f'- {material}: {required_quantity}')
-            return redirect('production-list')  # Redirect to production list or desired URL
+            return redirect('production')  # Redirect to production list or desired URL
         
         # Deduct raw materials from inventory
         for raw_material in raw_materials:
@@ -477,7 +480,13 @@ def produce_item(request):
         
         # Save production data
         production = Production(bom=bom, quantity=quantity)
-        production.save()        
+        production.save()
+        
+        # Update the total_qty field based on BOM name
+        productions_with_same_bom = Production.objects.filter(bom__name=bom.name)
+        total_quantity = productions_with_same_bom.aggregate(Sum('quantity'))['quantity__sum']
+        production.total_qty = total_quantity
+        production.save()
         
         messages.success(request, 'Order has been placed successfully')
         
@@ -490,7 +499,6 @@ def produce_item(request):
         return response
     
     else:
-        
         boms = BOM.objects.all()
         bom_quantities = {}
         productions = Production.objects.values('bom').annotate(total_quantity=Sum('quantity'))
@@ -506,9 +514,11 @@ def produce_item(request):
 
 
 
+
+
 def generate_pdf(bom, quantity):
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
     styles = getSampleStyleSheet()
 
     elements = []
@@ -516,23 +526,26 @@ def generate_pdf(bom, quantity):
     # Production Details
     production_id = Production.objects.latest('id').id
     product_name = Production.objects.latest('id').bom
+    product_quantity = Production.objects.latest('id').quantity
     production_date = Production.objects.latest('id').production_date.strftime('%Y-%m-%d')
-    
-    elements.append(Paragraph(f"Instantina Flavours India Private Limited", styles['Heading1']))
-    elements.append(Paragraph(f"Production Report", styles['Heading1']))
-    elements.append(Paragraph(f"Production ID: {production_id}", styles['Heading3']))
+
+    elements.append(Paragraph("Instantina Flavours India Private Limited", styles['Heading1']))
+    elements.append(Paragraph("Production Report SFG", styles['Heading1']))
+    elements.append(Paragraph(f"Batch No/Production ID: {production_id}", styles['Heading3']))
     elements.append(Paragraph(f"Product Name: {product_name}", styles['Heading3']))
+    elements.append(Paragraph(f"Production Quantity: {product_quantity}", styles['Heading3']))
     elements.append(Paragraph(f"Date: {production_date}", styles['Normal']))
     elements.append(Spacer(1, 0.5 * inch))
 
     # Table Data
-    data = [["Raw Material", "Quantity Required"]]
+    data = [["Raw Material Code", "Raw Material", "Quantity Required (Kg)","RM Batch No","Best Before"]]
 
-    raw_materials = bom.raw_materials.all()
-    for raw_material in raw_materials:
-        bom_raw_material = BOMRawMaterial.objects.get(bom=bom, raw_material=raw_material)
-        quantity_required = float(bom_raw_material.quantity) * quantity
-        data.append([raw_material.name, str(quantity_required)])
+    bom_raw_materials = BOMRawMaterial.objects.filter(bom=bom)
+    for bom_raw_material in bom_raw_materials:      
+        quantity_required = round(bom_raw_material.quantity * quantity, 5)
+
+        stock = bom_raw_material.raw_material
+        data.append([stock.item_code, stock.name, str(quantity_required)])
 
     # Table Style
     table_style = TableStyle([
@@ -540,18 +553,18 @@ def generate_pdf(bom, quantity):
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
         ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('FONTSIZE', (0, 0), (-1, 0), 8),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
         ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
         ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
         ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 11),
+        ('FONTSIZE', (0, 1), (-1, -1), 7),
         ('TOPPADDING', (0, 1), (-1, -1), 4),
         ('BOTTOMPADDING', (0, -1), (-1, -1), 12),
     ])
 
-    table = Table(data, colWidths=[200, 200])
+    table = Table(data, colWidths=[150, 150, 150,100,100])
     table.setStyle(table_style)
     elements.append(table)
 
@@ -559,26 +572,29 @@ def generate_pdf(bom, quantity):
 
     buffer.seek(0)
     return buffer
+
+
+
     
 
 from django.db.models import Q
 
-from django.core.paginator import Paginator
 
+
+
+from django.shortcuts import get_object_or_404
 
 def bom_list(request):
     query = request.GET.get('query')
-    bom_raw_materials = BOMRawMaterial.objects.all()
+    boms = BOM.objects.all()
     
     if query:
-        bom_raw_materials = bom_raw_materials.filter(bom__name__icontains=query)
+        boms = boms.filter(name__icontains=query)
     
-    paginator = Paginator(bom_raw_materials, 10)  # Show 10 items per page
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    
-    context = {'bom_raw_materials': page_obj, 'query': query}
+    context = {'boms': boms, 'query': query}
     return render(request, 'production/bom_list.html', context)
+
+
 
 
 def bom_listFG(request):
@@ -596,6 +612,7 @@ def bom_listFG(request):
     return render(request, 'production/bom_listfg.html', context)  
 
 
+from django.db.models import Max
 
 def produce_list(request):
     query = request.GET.get('query')
@@ -604,24 +621,26 @@ def produce_list(request):
     if query:
         productions = productions.filter(bom__name__icontains=query)
     
-    paginator = Paginator(productions, 10)  # Show 10 items per page
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    productions = productions.values('bom__name').annotate(latest_total_qty=Max('total_qty'))
     
-    context = {'productions': page_obj, 'query': query}
+    context = {'productions': productions, 'query': query}
     return render(request, 'production/production_list.html', context)
 
-   
+
 
 def create_productionfg(request):
     if request.method == 'POST':
         bom_id = request.POST['bom']
-        sfg_id = request.POST['sfg']
+        sfg_name = request.POST['sfg']
         quantity_bom = float(request.POST.get('quantity_bom', 0))
         quantity_sfg = float(request.POST.get('quantity_sfg', 0))
 
         bom = BOM.objects.get(id=bom_id)
-        sfg = Production.objects.get(id=sfg_id)
+        sfg = Production.objects.filter(bom__name=sfg_name).first()
+
+        if sfg is None:
+            messages.error(request, f'Production with name "{sfg_name}" does not exist')
+            return redirect('bomfg')
 
         # Check if inventory is sufficient for BOM
         raw_materials = bom.raw_materials.all()
@@ -639,7 +658,7 @@ def create_productionfg(request):
             messages.error(request, 'Insufficient inventory for the following raw materials:')
             for material, required_quantity in insufficient_raw_materials:
                 messages.error(request, f'- {material}: {required_quantity}')
-            return redirect('production-list')
+            return redirect('bomfg')
 
         # Deduct raw materials from inventory for BOM
         for raw_material in raw_materials:
@@ -649,13 +668,16 @@ def create_productionfg(request):
             raw_material.save()
 
         # Check if SFG quantity is available
-        if sfg.quantity < quantity_sfg:
+        if sfg.total_qty < quantity_sfg:
             messages.error(request, 'Insufficient SFG quantity')
-            return redirect('production-list')
+            return redirect('bomfg')
 
         # Deduct quantity from SFG
-        sfg.quantity -= quantity_sfg
+        sfg.total_qty -= quantity_sfg
         sfg.save()
+        
+        # Update the total quantity of SFG
+        sfg.update_total_qty()
 
         # Save production data
         production = ProductionFG(bom=bom, quantity_bom=quantity_bom, sfg=sfg, quantity_sfg=quantity_sfg)
@@ -673,15 +695,17 @@ def create_productionfg(request):
 
     else:
         boms = BOM.objects.all()
-        sfgs = Production.objects.all()
+        sfgs = Production.objects.values('bom__name').distinct()
 
         return render(request, 'production/create_bomFG.html', {'boms': boms, 'sfgs': sfgs})
 
 
 
+    
+
 def generate_pdffg(bom, quantity_bom, quantity_sfg):
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
     styles = getSampleStyleSheet()
 
     elements = []
@@ -690,25 +714,30 @@ def generate_pdffg(bom, quantity_bom, quantity_sfg):
     productionfg = ProductionFG.objects.filter(bom=bom).latest('id')
     production_id = productionfg.id
     product_name = productionfg.bom
+    product_name = productionfg.bom
+    product_quantity = productionfg.quantity_bom
     production_date = productionfg.production_date.strftime('%Y-%m-%d')
 
     elements.append(Paragraph("Instantina Flavours India Private Limited", styles['Heading1']))
-    elements.append(Paragraph("Production Report", styles['Heading1']))
+    elements.append(Paragraph("Production Report FG", styles['Heading1']))
     elements.append(Paragraph(f"Production ID: {production_id}", styles['Heading3']))
     elements.append(Paragraph(f"Product Name: {product_name}", styles['Heading3']))
+    elements.append(Paragraph(f"Production Quantity: {product_quantity}", styles['Heading3']))
     elements.append(Paragraph(f"Date: {production_date}", styles['Normal']))
-    elements.append(Spacer(1, 0.5 * inch))
+    elements.append(Spacer(1, 0.8 * inch))
 
     # Table Data
-    data = [["Raw Material", "Qty ", "SFG Name", "SFG Quantity","Raw Material Id","SFG Id","Completion date"]]
+    data = [["RM Code","Raw Material", "Qty (Kg)", "SFG Name", "SFG Quantity (Kg)","RM Batch no","SFG Id","Completion date",]]
 
     raw_materials = bom.raw_materials.all()
     for raw_material in raw_materials:
         bom_raw_material = BOMRawMaterial.objects.get(bom=bom, raw_material=raw_material)
-        quantity_required = float(bom_raw_material.quantity) * quantity_bom
+        quantity_required = round(float(bom_raw_material.quantity) * quantity_bom, 5)
+
         sfg_name = productionfg.sfg.bom if productionfg.sfg else ""  # Assuming SFG has a 'name' attribute
         sfg_quantity = productionfg.quantity_sfg if productionfg.sfg else 0
-        data.append([raw_material.name, str(quantity_required), sfg_name, str(sfg_quantity)])
+        stock=bom_raw_material.raw_material
+        data.append([stock.item_code,raw_material.name, str(quantity_required), sfg_name, str(sfg_quantity)])
 
     # Table Style
     table_style = TableStyle([
@@ -717,18 +746,18 @@ def generate_pdffg(bom, quantity_bom, quantity_sfg):
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
         ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('FONTSIZE', (0, 0), (-1, 0), 8),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
         ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
         ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
         ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 11),
+        ('FONTSIZE', (0, 1), (-1, -1), 7),
         ('TOPPADDING', (0, 1), (-1, -1), 4),
         ('BOTTOMPADDING', (0, -1), (-1, -1), 12),
     ])
 
-    table = Table(data, colWidths=[80, 50, 100,100,100,50                                   ,100])
+    table = Table(data, colWidths=[80, 150, 80,120,80,80,80,100])
     table.setStyle(table_style)
     elements.append(table)
 
@@ -753,48 +782,29 @@ def produce_listfg(request):
     return render(request, 'production/produce_listfg.html', context)
 
 
-from django.shortcuts import render, redirect
-from .models import Leadtimesfg, Production
 
 def leadtimesfg(request):
     if request.method == 'POST':
-        sfg_id = request.POST.get('sfg_id')
+        sfg_id = request.POST.get('sfg')
         rawcode = request.POST.get('rawcode')
 
-        # Get the selected Production instance
-        production = Production.objects.get(id=sfg_id)
-
-        # Check if Leadtimesfg instance already exists for the Production and raw code
-        existing_leadtime = Leadtimesfg.objects.filter(sfg=production, Rawcode=rawcode).exists()
-
+        # Check if the SFG already has a Rawcode associated with it
+        existing_leadtime = Leadtimesfg.objects.filter(sfg_id=sfg_id, Rawcode__isnull=False).first()
         if existing_leadtime:
-            # Handle the condition where Leadtimesfg instance already exists
-            return HttpResponse("Lead time data already entered for this Production and raw material code")
-        else:
-            # Create a new instance of Leadtimesfg and save it
-            leadtime = Leadtimesfg.objects.create(sfg=production, Rawcode=rawcode)
+            error_message = f"Rawcode already exists for SFG ID: {sfg_id}"
+            # You can choose to display this error message in the template
+            return render(request, 'production/leadtimesfg.html', {'error_message': error_message})
 
-            return redirect('production-list')  # Redirect to a success page or production list view
+        # Create a new Leadtimesfg object
+        new_leadtime = Leadtimesfg(sfg_id=sfg_id, Rawcode=rawcode)
+        new_leadtime.save()
 
-    if request.method == 'GET':
-        # Retrieve all Production instances
-        productions = Production.objects.all()
+        # Redirect to a success page or display a success message
+        return redirect('production-record')
 
-        # Get the production IDs that already have lead time data entered for the given raw material code
-        rawcode = request.GET.get('rawcode', '')  # Get the raw material code from the request's GET parameters
-        existing_production_ids = Leadtimesfg.objects.filter(Rawcode=rawcode).values_list('sfg_id', flat=True)
-
-        # Exclude the production IDs from the dropdown options
-        available_productions = productions.exclude(id__in=existing_production_ids)
-
-        return render(request, 'production/leadtimesfg.html', {'productions': available_productions, 'rawcode': rawcode})
-
-
-
-
-
-
-
+    # If the request method is GET, retrieve the available SFGs
+    sfg_list = Production.objects.filter(leadtimesfg__isnull=True)
+    return render(request, 'production/leadtimesfg.html', {'sfg_list': sfg_list})
 
 def leadtimelist(request):
     query = request.GET.get('query')
@@ -811,39 +821,29 @@ def leadtimelist(request):
     return render(request, 'production/leadtimelist.html', context)
 
 
+
 def leadtimefg(request):
     if request.method == 'POST':
-        sfg_id = request.POST.get('sfg_id')
+        sfg_id = request.POST.get('sfg')
         rawcode = request.POST.get('rawcode')
 
-        # Get the selected Production instance
-        production = ProductionFG.objects.get(id=sfg_id)
-
-        # Check if Leadtimesfg instance already exists for the Production and raw code
-        existing_leadtime = Leadtimefg.objects.filter(sfg=production, Rawcode=rawcode).exists()
-
+        # Check if the SFG already has a Rawcode associated with it
+        existing_leadtime = Leadtimefg.objects.filter(sfg_id=sfg_id, Rawcode__isnull=False).first()
         if existing_leadtime:
-            # Handle the condition where Leadtimesfg instance already exists
-            return HttpResponse("Lead time data already entered for this Production and raw material code")
-        else:
-            # Create a new instance of Leadtimesfg and save it
-            leadtime = Leadtimefg.objects.create(sfg=production, Rawcode=rawcode)
+            error_message = f"Rawcode already exists for SFG ID: {sfg_id}"
+            # You can choose to display this error message in the template
+            return render(request, 'production/leadtimesfg.html', {'error_message': error_message})
 
-            return redirect('production-list')  # Redirect to a success page or production list view
+        # Create a new Leadtimesfg object
+        new_leadtime = Leadtimefg(sfg_id=sfg_id, Rawcode=rawcode)
+        new_leadtime.save()
 
-    if request.method == 'GET':
-        # Retrieve all Production instances
-        productions = ProductionFG.objects.all()
+        # Redirect to a success page or display a success message
+        return redirect('production-record')
 
-        # Get the production IDs that already have lead time data entered for the given raw material code
-        rawcode = request.GET.get('rawcode', '')  # Get the raw material code from the request's GET parameters
-        existing_production_ids = Leadtimefg.objects.filter(Rawcode=rawcode).values_list('sfg_id', flat=True)
-
-        # Exclude the production IDs from the dropdown options
-        available_productions = productions.exclude(id__in=existing_production_ids)
-
-        return render(request, 'production/leadtimefg.html', {'productions': available_productions, 'rawcode': rawcode})
-
+    # If the request method is GET, retrieve the available SFGs
+    sfg_list = ProductionFG.objects.filter(leadtimefg__isnull=True)
+    return render(request, 'production/leadtimefg.html', {'sfg_list': sfg_list})
 
 def leadtimelistfg(request):
     query = request.GET.get('query')

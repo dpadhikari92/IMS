@@ -20,31 +20,30 @@
           </div>
         </form>
 
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>BOM ID</th>
-              <th>BOM Name</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for bom_raw_material in bom_raw_materials %}
-            <tr>
-              <td>{{ bom_raw_material.bom.id }}</td>
-              <td>
-                <a href="{% url 'bom-details' bom_raw_material.bom.id %}"
-                  >{{ bom_raw_material.bom.name }}</a
-                >
-
-                {% empty %}
-                <tr>
-                  <td colspan="3">No BOM Raw Materials found.</td>
-                </tr>
-                {% endfor %}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div style="height: 500px; overflow: auto">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>BOM ID</th>
+                <th>BOM Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for bom in boms %}
+              <tr>
+                <td>{{ bom.id }}</td>
+                <td>
+                  <a href="{% url 'bom-details' bom.id %}">{{ bom.name }}</a>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="2">No BOMs found.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

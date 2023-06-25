@@ -67,9 +67,7 @@
             <li>
               <a href="{% url 'bom'%}">Create Bom</a>
             </li>   
-            <li>
-              <a href="{% url 'bomfg' %}">Finished Goods</a>
-            </li>
+          
        
           </ul>
         </li>
@@ -144,15 +142,31 @@
             <i class="bx fa-solid fa-store icon-right"></i
           ></a>
           <ul class="side-dropdown">
-            <li>
-              <a href="{% url 'production-listfg'%}">FG Inventory </a>
-            </li>
+           
             <li>
               <a href="{% url 'production-list'%}">SFG Inventory </a>
             </li>
          
             <li>
               <a href="{% url 'inventory'%}">Raw Material Inventory</a>
+            </li>
+
+          </ul>
+        </li>
+
+        <li>
+          <a href="{% url 'new-stock'%}"
+            ><i class="bx bxs-inbox icon"></i>Production Record
+            <i class="bx fa-solid fa-store icon-right"></i
+          ></a>
+          <ul class="side-dropdown">
+           
+            <li>
+              <a href="{% url 'production-leadtimelist'%}">SFG Traceability </a>
+            </li>
+         
+            <li>
+              <a href="{% url 'production-leadtimelistfg'%}">FG Traceability</a>
             </li>
 
           </ul>

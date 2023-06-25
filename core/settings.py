@@ -29,7 +29,7 @@ DEBUG =True
 
 ALLOWED_HOSTS =['ims-pied.vercel.app']
 
-#
+#ims-pied.vercel.app
 
 # Application definition
 

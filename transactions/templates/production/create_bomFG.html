@@ -1,9 +1,11 @@
-{% extends "base.html" %} {% load crispy_forms_tags %} {% block content %}
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
 <div class="container">
   <div class="row my-4">
     <div class="col-md-10">
-      <div class="border bg-white text-center shadow offset-3 p-4">
-        <div style="height: 800px">
+      <div class="border bg-white offset-1 text-center shadow  p-4">
+        <div style="height: 300px">
           {% for message in messages %} {% if message %}
           <div class="alert alert-{{ message.tags }}">{{ message }}</div>
           {% endif %} {% endfor %}
@@ -11,7 +13,7 @@
             class="row"
             style="color: #4e4e4e; font-style: bold; font-size: 1.5rem"
           >
-            <div class="col-md-8">Create New Production</div>
+            <div class="col-md-6">Create New Production</div>
             <div class="col-md-4">
               <div style="float: right">
                 <a class="btn btn-info" href="{% url 'production-recordfg' %}"
@@ -22,66 +24,90 @@
           </div>
 
           <form method="post">
+            <br/>
+            <br/>
             {% csrf_token %}
 
-            <div class="form-group mx-4 mt-4">
-              <label for="bom">BOM:</label>
-              <select name="bom" class="form-control" required>
-                <option value="">-- Select BOM --</option>
-                {% for bom in boms %}
-                <option value="{{ bom.id }}">{{ bom.name }}</option>
-                {% endfor %}
-              </select>
-            </div>
+            <div class="form-group row mx-4 mt-4">
+              <label for="bom" class="col-md-2 col-form-label">FG BOM:</label>
+              <div class="col-md-4">
+                <select name="bom" id="bom" class="form-control" required>
+                  <option value="">-- Select BOM --</option>
+                  {% for bom in boms %}
+                  <option value="{{ bom.id }}" {% if bom.name == 'md-10' %}selected{% endif %}>{{ bom.name }}</option>
+                  {% endfor %}
+                </select>
+                
+              </div>   
+                <label for="quantity_bom" class="col-md-2 col-form-label"
+                  >Qty Kg:</label
+                >
+                <div class="col-md-4">
+                  <input
+                    type="number"
+                    step="any"
+                    name="quantity_bom"
+                    id="quantity_bom"
+                    class="form-control"
+                    placeholder="Quantity (BOM)"
+                    required
+                  />
+                </div>
+              </div>    
 
             {% if sfgs.count > 0 %}
-            <div class="form-group mx-4 mt-4">
-              <label for="sfg">SFG:</label>
-              <select name="sfg" class="form-control" required>
-                <option value="">-- Select SFG --</option>
-                {% for sfg in sfgs %}
-                <option value="{{ sfg.id }}">{{ sfg.bom }}</option>
-                {% endfor %}
-              </select>
+            <div class="form-group row mx-4 mt-4">
+              <label for="sfg" class="col-md-2 col-form-label">SFG:</label>
+              <div class="col-md-4">
+                <select name="sfg" id="sfg" class="form-control" required>
+                  <option value="">-- Select SFG --</option>
+                  {% for sfg in sfgs %}
+                  <option
+                    value="{{ sfg.bom__name }}"
+                    data-quantity="{{ sfg.quantity }}"
+                  >
+                    {{ sfg.bom__name }} ({{ sfg.quantity }} Kg)
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+          
+                <label for="quantity_sfg" class="col-md-2 col-form-label"
+                  >Quantity (SFG) Kg:</label
+                >
+                <div class="col-md-4">
+                  <input
+                    type="number"
+                    step="any"
+                    name="quantity_sfg"
+                    id="quantity_sfg"
+                    class="form-control"
+                    placeholder="Quantity (SFG)"
+                    {%
+                    if
+                    sfgs.count
+                    <
+                    1
+                    %}disabled{%
+                    endif
+                    %}
+                    required
+                  />
+                </div>
+              </div>
             </div>
             {% endif %}
 
-            <div class="form-group mx-4 mt-4">
-              <label for="quantity_bom">Quantity (BOM):</label>
-              <input
-                type="number"
-                step="any"
-                name="quantity_bom"
-                class="form-control"
-                placeholder="Quantity (BOM)"
-                required
-              />
-            </div>
+         
+
+         
 
             <div class="form-group mx-4 mt-4">
-              <label for="quantity_sfg">Quantity (SFG):</label>
-              <input
-                type="number"
-                step="any"
-                name="quantity_sfg"
-                class="form-control"
-                placeholder="Quantity (SFG)"
-                {%
-                if
-                sfgs.count
-                <
-                1
-                %}disabled{%
-                endif
-                %}
-                required
-              />
-            </div>
-
-            <div class="form-group mx-4 mt-4">
-              <button type="submit" class="btn login-btn btn-info btn-m">
-                Create Production Order
-              </button>
+              <div class="offset-md-2 col-md-10">
+                <button type="submit" class="btn login-btn btn-info btn-m">
+                  Create Production Order
+                </button>
+              </div>
             </div>
           </form>
 
@@ -95,4 +121,5 @@
     </div>
   </div>
 </div>
+
 {% endblock content %}

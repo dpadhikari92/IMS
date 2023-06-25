@@ -1,14 +1,13 @@
-<!-- production/leadtimesfg.html -->
-
 {% extends "base.html" %} {% load crispy_forms_tags %} {% block content %}
 <div class="container">
   <div class="row my-4">
     <div class="col-md-10">
       <div class="border bg-white text-center shadow offset-3 p-4">
         <div style="height: 300px">
-          {% for message in messages %} {% if message %}
-          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-          {% endif %} {% endfor %}
+          {% if error_message %}
+          <div class="alert alert-danger">{{ error_message }}</div>
+          {% endif %}
+
           <div
             class="row"
             style="color: #4e4e4e; font-style: bold; font-size: 1.5rem"
@@ -30,11 +29,11 @@
 
             <div class="form-group mx-4 mt-4">
               <label for="sfg_id">Select SFG:</label>
-              <select name="sfg_id" id="sfg_id" class="form-control" required>
+              <select name="sfg" id="sfg_id" class="form-control" required>
                 <option value="">-- Select SFG --</option>
-                {% for production in productions %}
-                <option value="{{ production.id }}">
-                  {{ production.bom }}
+                {% for sfg in sfg_list %}
+                <option value="{{ sfg.id }}">
+                  {{ sfg.bom }} - {{ sfg.id }}
                 </option>
                 {% endfor %}
               </select>

@@ -1,5 +1,3 @@
-<!-- production/leadtimesfg.html -->
-
 {% extends "base.html" %} {% load crispy_forms_tags %} {% block content %}
 <div class="container">
   <div class="row my-4">
@@ -29,10 +27,10 @@
             {% csrf_token %}
 
             <div class="form-group mx-4 mt-4">
-              <label for="sfg_id">Select SFG:</label>
-              <select name="sfg_id" id="sfg_id" class="form-control" required>
+              <label for="sfg">Select SFG:</label>
+              <select name="sfg" id="sfg" class="form-control" required>
                 <option value="">-- Select SFG --</option>
-                {% for production in productions %}
+                {% for production in sfg_list %}
                 <option value="{{ production.id }}">
                   {{ production.bom }}
                 </option>

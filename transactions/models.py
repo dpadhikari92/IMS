@@ -66,7 +66,7 @@ class PurchaseBillDetails(models.Model):
     billno = models.ForeignKey(PurchaseBill, on_delete = models.CASCADE, related_name='purchasedetailsbillno')
     
     eway = models.CharField(max_length=50, blank=True, null=True)    
-    veh = models.IntegerField(max_length=50, blank=True, null=True)
+    veh = models.IntegerField(max_length=50, blank=False,null=True)
     destination = models.CharField(max_length=50, blank=True, null=True)
     po = models.CharField(max_length=50, blank=True, null=True)    
     cgst = models.FloatField(max_length=50, blank=True, null=True)
@@ -182,9 +182,17 @@ class Production(models.Model):
     bom = models.ForeignKey(BOM, on_delete=models.CASCADE)
     quantity = models.FloatField()
     production_date = models.DateField(auto_now_add=True)
-
+    total_qty = models.FloatField(default=0)
+    
+    
     def __str__(self):
         return f"Production ID: {self.id}, BOM: {self.bom.name}"
+    
+    def update_total_qty(self):
+        if self.total_qty is None:
+            self.total_qty = 0
+        self.total_qty += self.quantity
+        self.save()
     
     
 class FGSFG(models.Model):
@@ -209,7 +217,7 @@ class ProductionFG(models.Model):
     production_date = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return f" {self.bom}"
+        return f" {self.bom} - {self.sfg.bom.name}"
     
 
 class Leadtimesfg(models.Model):

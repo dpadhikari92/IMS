@@ -23,7 +23,6 @@
         <table class="table table-striped">
           <thead>
             <tr>
-              <th>Production ID</th>
               <th>SFG Name</th>
               <th>Inventory</th>
             </tr>
@@ -31,13 +30,12 @@
           <tbody>
             {% for production in productions %}
             <tr>
-              <td>{{ production.id }}</td>
-              <td>{{ production.bom.name }}</td>
-              <td>{{ production.quantity }}</td>
+              <td>{{ production.bom__name }}</td>
+              <td>{{ production.latest_total_qty|floatformat:5 }} Kg</td>
             </tr>
             {% empty %}
             <tr>
-              <td colspan="3">No productions found.</td>
+              <td colspan="2">No productions found.</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -46,5 +44,4 @@
     </div>
   </div>
 </div>
-
 {% endblock %}

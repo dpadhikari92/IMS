@@ -22,18 +22,19 @@
 
       <div class="table-responsive">
         <table class="table table-hover table-bordered">
-
           <thead class="thead-dark align-middle">
             <tr>
-              <th width="10%">Product</th>
-              <th width="10%">Supplier</th>
-              <th width="15%">Receipt Date</th>
-              <th width="15%">Sup Batch No.</th>  
-              <th width="10%">Qty. KG</th>
-              <th width="20%">Mfg Date</th>
-              <th width="20%">Exp Date</th>
-              <th width="25%">Batch No</th>
-              <th width="40%">Action</th>
+              <th width="10%" style="font-size: 10px;">Product</th>
+              <th width="10%" style="font-size:10px;">Supplier</th>
+              <th width="10%" style="font-size: 10px;">Receipt Date</th>
+              <th width="10%" style="font-size: 10px;">Invoice Date</th>
+              <th width="10%" style="font-size: 10px;">Sup Batch No.</th>  
+              <th width="10%" style="font-size: 10px;">Qty. KG</th>
+              <th width="10%" style="font-size: 10px;">Mfg Date</th>
+              <th width="10%" style="font-size: 10px;">Exp Date</th>
+              <th width="10%" style="font-size: 10px;">Internal Batch No</th>
+              <th width="10%" style="font-size: 10px;">Internal COA No</th>
+              <th width="40%" style="font-size: 10px;">Action</th>
             </tr>
           </thead>
 
@@ -42,18 +43,20 @@
           <tbody>
             {% for purchase in bills %}
             <tr>
-              <td class="align-middle" style="font-size: smaller;">{% for item in purchase.get_items_list %} {{ item.stock.name }} <br> {% endfor %}</td>
+              <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.stock.name }} <br> {% endfor %}</td>
               <td class="align-middle">
                 {% if purchase.supplier.is_deleted %}
                 {{ purchase.supplier }}<br>
                 {% else %}
                 <a href="{% url 'supplier' purchase.supplier.name %}" style="font-size: smaller;">{{ purchase.supplier }}</a>{% endif %}  </td>
-                <td class="align-middle" style="font-size: smaller;">{{ purchase.time.date }}</td>
-                <td class="align-middle" style="font-size: smaller;">{% for item in purchase.get_items_list %} {{ item.supplier_no }} <br> {% endfor %}</td>
-                <td class="align-middle" style="font-size: smaller;">{% for item in purchase.get_items_list %} {{ item.quantity }} <br> {% endfor %}</td>
-                <td class="align-middle" style="font-size: smaller;">{% for item in purchase.get_items_list %} {{ item.mfg_date }} <br> {% endfor %}</td>
-                <td class="align-middle" style="font-size: smaller;">{% for item in purchase.get_items_list %} {{ item.exp_date }} <br> {% endfor %}</td>
-              <td class="align-middle"><p>{{ purchase.billno }}</p></td>     
+                <td class="align-middle" style="font-size: 10px;">{{ purchase.time.date }}</td>
+                <td class="align-middle" style="font-size: 10px;">{{ purchase.eway }}</td>
+                <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.supplier_no }} <br> {% endfor %}</td>
+                <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.quantity }} Kg<br> {% endfor %}</td>
+                <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.mfg_date }} <br> {% endfor %}</td>
+                <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.exp_date }} <br> {% endfor %}</td>
+              <td class="align-middle"style="font-size: 10px;">INS/ {{ purchase.billno }}</td>  
+              <td class="align-middle"style="font-size: 10px;"> {{ purchase.destination }}</td>   
               <td class="align-middle">
                 <a href="{% url 'purchase-bill' purchase.billno %}">View</a>
                 <a href="{% url 'delete-purchase' purchase.pk %}" >Delete </a>
