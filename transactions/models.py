@@ -34,6 +34,9 @@ class PurchaseBill(models.Model):
 
     def get_items_list(self):
         return PurchaseItem.objects.filter(billno=self)
+    
+    def get_items(self):
+        return PurchaseBillDetails.objects.filter(billno=self)
 
     def get_total_price(self):
         purchaseitems = PurchaseItem.objects.filter(billno=self)
