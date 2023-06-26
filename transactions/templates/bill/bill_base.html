@@ -62,18 +62,30 @@
         <li class="divider" data-text="main">Main</li>
         <li>
           <a href=""
+            ><i class="bx bxs-inbox icon"></i> Bill Of Material
+            <i class="bx fa-solid fa-industry icon-right"></i
+          ></a>
+          <ul class="side-dropdown">
+            <li>
+              <a href="{% url 'bom'%}">Create Bom</a>
+            </li>   
+          
+       
+          </ul>
+        </li>
+        <li>
+          <a href=""
             ><i class="bx bxs-inbox icon"></i> Production
             <i class="bx fa-solid fa-industry icon-right"></i
           ></a>
           <ul class="side-dropdown">
             <li>
-              <a href="{% url 'new-stock' %}">Place Production Order</a>
-            </li>
+              <a href="{% url 'production'%}">Semi Finished Goods</a>
+            </li>   
             <li>
-              <a href="{% url 'inventory'%}">View Pending Orders</a>
+              <a href="{% url 'bomfg' %}">Finished Goods</a>
             </li>
-
-            <li><a href="#">Production Performance </a></li>
+       
           </ul>
         </li>
 
@@ -105,48 +117,68 @@
               <a href="{% url 'new-supplier'%}">Add New Supplier</a>
             </li>
             <li>
-              <a href="{% url 'sales-list'%}"> View Supplier List </a>
+              <a href="{% url 'suppliers-list'%}"> View Supplier List </a>
             </li>
           </ul>
         </li>
 
+     
+
         <li>
-          <a href="salses.html"
-            ><i class="bx bxs-inbox icon"></i> Sales
+          <a href="{% url 'new-stock'%}"
+            ><i class="bx bxs-inbox icon"></i> Raw Material
             <i class="bx fa-solid fa-store icon-right"></i
           ></a>
           <ul class="side-dropdown">
             <li>
-              <a href="{% url 'sales-list'%}">Place Sales Order</a>
+              <a href="{% url 'new-stock'%}">Add New Raw Material </a>
             </li>
-            <li>
-              <a href="{% url 'sales-list'%}"> Pending Sales Order </a>
-            </li>
+           
+
           </ul>
         </li>
 
         <li>
-          <a href="{% url 'sales-list'%}"
+          <a href="{% url 'new-stock'%}"
             ><i class="bx bxs-inbox icon"></i> Inventory
             <i class="bx fa-solid fa-store icon-right"></i
           ></a>
+          <ul class="side-dropdown">
+           
+            <li>
+              <a href="{% url 'production-list'%}">SFG Inventory </a>
+            </li>
+         
+            <li>
+              <a href="{% url 'inventory'%}">Raw Material Inventory</a>
+            </li>
+
+          </ul>
+        </li>
+
+        <li>
+          <a href="{% url 'new-stock'%}"
+            ><i class="bx bxs-inbox icon"></i>Production Record
+            <i class="bx fa-solid fa-store icon-right"></i
+          ></a>
+          <ul class="side-dropdown">
+           
+            <li>
+              <a href="{% url 'production-leadtimelist'%}">SFG Traceability </a>
+            </li>
+         
+            <li>
+              <a href="{% url 'production-leadtimelistfg'%}">FG Traceability</a>
+            </li>
+
+          </ul>
+        </li>
+        
+     
         </li>
 
         <li class="divider" data-text="table and forms">Table and forms</li>
-        <li>
-          <a href="#"><i class="bx bx-table icon"></i> Tables</a>
-        </li>
-        <li>
-          <a href="#"
-            ><i class="bx bxs-notepad icon"></i> Forms
-            <i class="bx bx-chevron-right icon-right"></i
-          ></a>
-          <ul class="side-dropdown">
-            <li><a href="#">Basic</a></li>
-            <li><a href="#">Select</a></li>
-            <li><a href="#">Checkbox</a></li>
-            <li><a href="#">Radio</a></li>
-          </ul>
+
         </li>
       </ul>
       {% endif %}
