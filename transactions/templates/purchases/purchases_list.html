@@ -50,13 +50,13 @@
                 {% else %}
                 <a href="{% url 'supplier' purchase.supplier.name %}" style="font-size: smaller;">{{ purchase.supplier }}</a>{% endif %}  </td>
                 <td class="align-middle" style="font-size: 10px;">{{ purchase.time.date }}</td>
-                <td class="align-middle" style="font-size: 10px;">{{bill.billdetails.eway }}</td>
+                <td class="align-middle" style="font-size: 10px;">{{ purchase.billdetails.eway }}</td>
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.supplier_no }} <br> {% endfor %}</td>
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.quantity }} Kg<br> {% endfor %}</td>
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.mfg_date }} <br> {% endfor %}</td>
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.exp_date }} <br> {% endfor %}</td>
               <td class="align-middle"style="font-size: 10px;">INS/ {{ purchase.billno }}</td>  
-              <td class="align-middle"style="font-size: 10px;"> {{ bill.billdetails.destination }}</td>   
+              <td class="align-middle" style="font-size: 10px;"> {{ purchase.billdetails.destination }}</td>    
               <td class="align-middle">
                 <a href="{% url 'purchase-bill' purchase.billno %}">View</a>
                 <a href="{% url 'delete-purchase' purchase.pk %}" >Delete </a>
