@@ -138,32 +138,39 @@ class SupplierView(View):
 
 
 
-
-# shows the list of bills of all purchases 
-from django.db.models import Q
-
 class PurchaseView(ListView):
     model = PurchaseBill
     template_name = "purchases/purchases_list.html"
     context_object_name = 'bills'
     ordering = ['-time']
-    paginate_by = 8
+    paginate_by = 4  # Number of records per page
 
     def get_queryset(self):
         queryset = super().get_queryset()
         search_query = self.request.GET.get('search')
         if search_query:
             queryset = queryset.filter(
-                Q(items__stock__name__icontains=search_query)
+                Q(purchase_item__purchase_code__icontains=search_query)
             )
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['search_query'] = self.request.GET.get('search', '')
+
+        # Get the current page number from the request's GET parameters
+        page_number = self.request.GET.get('page')
+
+        # Get the latest 10 records if the page number is not specified
+        if not page_number:
+            context['bills'] = context['bills'][:4]
+
         return context
 
- 
+
+
+
+
 
 
 # used to select the supplier
@@ -214,6 +221,9 @@ class PurchaseCreateView(View):
                 billitem.totalprice = billitem.perprice * billitem.quantity
                 stock.quantity += billitem.quantity
                 stock.save()
+                
+                billitem.generate_code_purchase()
+                 
                 billitem.save()
                 stock.purchase_items.add(billitem)
             messages.success(request, "Purchased items have been registered successfully")
@@ -423,14 +433,15 @@ class SaleBillView(View):
 def create_bom(request):
     if request.method == 'POST':
         bom_name = request.POST['name']
+        code = request.POST['code']
         raw_materials = request.POST.getlist('raw_materials[]')
         quantities = request.POST.getlist('quantities[]')
 
-        bom = BOM(name=bom_name)
+        bom = BOM(name=bom_name,code=code)
         bom.save()
 
         for material, quantity in zip(raw_materials, quantities):
-            bom_material = BOMRawMaterial(bom=bom, raw_material_id=material, quantity=quantity)
+            bom_material = BOMRawMaterial(bom=bom,raw_material_id=material, quantity=quantity)
             bom_material.save()
 
         messages.success(request, 'BOM saved successfully.')  # Add success message
@@ -442,9 +453,6 @@ def create_bom(request):
     return render(request, 'production/create_bom.html', context)
 
 
-
-from django.shortcuts import render, redirect
-from .models import Production
 
 def produce_item(request):
     if request.method == 'POST':
@@ -480,6 +488,7 @@ def produce_item(request):
         
         # Save production data
         production = Production(bom=bom, quantity=quantity)
+        # Generate the code_sfg
         production.save()
         
         # Update the total_qty field based on BOM name
@@ -511,9 +520,8 @@ def produce_item(request):
             bom_quantities[bom] = total_quantity
         
         return render(request, 'production/produce_item.html', {'boms': boms, 'bom_quantities': bom_quantities})
-
-
-
+    
+   
 
 
 def generate_pdf(bom, quantity):
@@ -524,16 +532,18 @@ def generate_pdf(bom, quantity):
     elements = []
 
     # Production Details
-    production_id = Production.objects.latest('id').id
+    product_code=BOM.objects.latest("id").code
+    production_id = Production.objects.latest('id').code_sfg
     product_name = Production.objects.latest('id').bom
     product_quantity = Production.objects.latest('id').quantity
     production_date = Production.objects.latest('id').production_date.strftime('%Y-%m-%d')
 
     elements.append(Paragraph("Instantina Flavours India Private Limited", styles['Heading1']))
     elements.append(Paragraph("Production Report SFG", styles['Heading1']))
-    elements.append(Paragraph(f"Batch No/Production ID: {production_id}", styles['Heading3']))
+    elements.append(Paragraph(f"Product ID: {product_code}", styles['Heading3']))
+    elements.append(Paragraph(f"Batch No: {production_id}", styles['Heading3']))
     elements.append(Paragraph(f"Product Name: {product_name}", styles['Heading3']))
-    elements.append(Paragraph(f"Production Quantity: {product_quantity}", styles['Heading3']))
+    elements.append(Paragraph(f"Production Quantity Kg: {product_quantity}", styles['Heading3']))
     elements.append(Paragraph(f"Date: {production_date}", styles['Normal']))
     elements.append(Spacer(1, 0.5 * inch))
 
@@ -677,13 +687,14 @@ def create_productionfg(request):
         sfg.save()
         
         # Update the total quantity of SFG
-        sfg.update_total_qty()
+       
 
         # Save production data
         production = ProductionFG(bom=bom, quantity_bom=quantity_bom, sfg=sfg, quantity_sfg=quantity_sfg)
         production.save()
 
         messages.success(request, 'Order has been placed successfully')
+        
 
         # Generate PDF
         pdf_data = generate_pdffg(bom, quantity_bom, quantity_sfg)
@@ -712,35 +723,44 @@ def generate_pdffg(bom, quantity_bom, quantity_sfg):
 
     # Production Details
     productionfg = ProductionFG.objects.filter(bom=bom).latest('id')
-    production_id = productionfg.id
-    product_name = productionfg.bom
+    production_id = productionfg.bom.code
     product_name = productionfg.bom
     product_quantity = productionfg.quantity_bom
+    product_code = productionfg.code_fg
     production_date = productionfg.production_date.strftime('%Y-%m-%d')
 
     elements.append(Paragraph("Instantina Flavours India Private Limited", styles['Heading1']))
     elements.append(Paragraph("Production Report FG", styles['Heading1']))
-    elements.append(Paragraph(f"Production ID: {production_id}", styles['Heading3']))
+    elements.append(Paragraph(f"Product ID: {production_id}", styles['Heading3']))
+    elements.append(Paragraph(f"Batch No.: {product_code}", styles['Heading3']))
     elements.append(Paragraph(f"Product Name: {product_name}", styles['Heading3']))
-    elements.append(Paragraph(f"Production Quantity: {product_quantity}", styles['Heading3']))
+   
+    elements.append(Paragraph(f"Production Quantity Kg: {product_quantity}" , styles['Heading3']))
     elements.append(Paragraph(f"Date: {production_date}", styles['Normal']))
     elements.append(Spacer(1, 0.8 * inch))
 
     # Table Data
-    data = [["RM Code","Raw Material", "Qty (Kg)", "SFG Name", "SFG Quantity (Kg)","RM Batch no","SFG Id","Completion date",]]
+    data = [["RM Code", "Raw Material", "Qty (Kg)", "SFG Name", "SFG Quantity (Kg)", "RM Batch no", "SFG Id", "Completion date"]]
 
     raw_materials = bom.raw_materials.all()
+    sfg_name_added = False  # Flag to track if sfg_name is added to data
+
     for raw_material in raw_materials:
         bom_raw_material = BOMRawMaterial.objects.get(bom=bom, raw_material=raw_material)
         quantity_required = round(float(bom_raw_material.quantity) * quantity_bom, 5)
 
-        sfg_name = productionfg.sfg.bom if productionfg.sfg else ""  # Assuming SFG has a 'name' attribute
-        sfg_quantity = productionfg.quantity_sfg if productionfg.sfg else 0
-        stock=bom_raw_material.raw_material
-        data.append([stock.item_code,raw_material.name, str(quantity_required), sfg_name, str(sfg_quantity)])
+        sfg_name = productionfg.sfg.bom if productionfg.sfg and not sfg_name_added else ""
+        sfg_quantity = productionfg.quantity_sfg if productionfg.sfg and not sfg_name_added else 0
+        stock = bom_raw_material.raw_material
+        data.append([stock.item_code, raw_material.name, str(quantity_required), sfg_name, str(sfg_quantity)])
+
+        # Set sfg_name_added to True if sfg_name is added to data
+        if sfg_name:
+            sfg_name_added = True
 
     # Table Style
     table_style = TableStyle([
+        
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
@@ -755,9 +775,12 @@ def generate_pdffg(bom, quantity_bom, quantity_sfg):
         ('FONTSIZE', (0, 1), (-1, -1), 7),
         ('TOPPADDING', (0, 1), (-1, -1), 4),
         ('BOTTOMPADDING', (0, -1), (-1, -1), 12),
+        
+        
+        # Table style definitions
     ])
 
-    table = Table(data, colWidths=[80, 150, 80,120,80,80,80,100])
+    table = Table(data, colWidths=[80, 150, 80, 120, 80, 80, 80, 100])
     table.setStyle(table_style)
     elements.append(table)
 
@@ -765,6 +788,7 @@ def generate_pdffg(bom, quantity_bom, quantity_sfg):
 
     buffer.seek(0)
     return buffer
+
 
 
 def produce_listfg(request):
@@ -808,10 +832,10 @@ def leadtimesfg(request):
 
 def leadtimelist(request):
     query = request.GET.get('query')
-    leadtimes = Leadtimesfg.objects.all()
+    leadtimes = Production.objects.order_by('-id')
 
     if query:
-        leadtimes = leadtimes.filter(sfg__bom__name__icontains=query)
+        leadtimes = leadtimes.filter(bom__name__icontains=query)
 
     paginator = Paginator(leadtimes, 10)  # Show 10 items per page
     page_number = request.GET.get('page')
@@ -847,7 +871,7 @@ def leadtimefg(request):
 
 def leadtimelistfg(request):
     query = request.GET.get('query')
-    leadtimes = Leadtimefg.objects.all()
+    leadtimes = ProductionFG.objects.order_by('-id')
 
     if query:
         leadtimes = leadtimes.filter(sfg__bom__name__icontains=query)
@@ -864,5 +888,16 @@ def leadtimelistfg(request):
 def bom_details(request, bom_id):
     bom = get_object_or_404(BOM, pk=bom_id)
     bom_raw_materials = bom.bomrawmaterial_set.all()
-    context = {'bom': bom, 'bom_raw_materials': bom_raw_materials}
+    context = {
+        'bom': bom,
+        'bom_raw_materials': bom_raw_materials,
+        'row_count': len(bom_raw_materials),
+    }
     return render(request, 'production/bom_details.html', context)
+
+
+
+
+    
+    
+    

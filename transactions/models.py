@@ -28,6 +28,7 @@ class PurchaseBill(models.Model):
     billno = models.AutoField(primary_key=True)
     time = models.DateTimeField(auto_now=True)
     supplier = models.ForeignKey(Supplier, on_delete = models.CASCADE, related_name='purchasesupplier')
+    
 
     def __str__(self):
 	    return "Bill no: " + str(self.billno)
@@ -58,16 +59,30 @@ class PurchaseItem(models.Model):
     mfg_date = models.DateField(default=datetime.date.today().strftime('%Y-%m-%d'))
     exp_date=models.DateField(default=datetime.date.today().strftime('%Y-%m-%d'))
     purchase_date = models.DateField(default=datetime.date.today().strftime('%Y-%m-%d'))
+    purchase_code=models.CharField(max_length=100, blank=True, null=True)
 
 
 
     def __str__(self):
         return f"Bill no: {self.billno.billno}, Item: {self.stock.name}"
+    
+    
+    def generate_code_purchase(self):
+        purchase_code = self.stock.item_code
+        purchase_count = PurchaseItem.objects.filter(stock=self.stock).count() + 1
+        self.purchase_code = f"{purchase_code}/{purchase_count}"
+        self.save()
+
+    def save(self, *args, **kwargs):
+        if not self.purchase_code:
+            self.generate_code_purchase()
+        super().save(*args, **kwargs)
+        
+        
 
 #contains the other details in the purchases bill
 class PurchaseBillDetails(models.Model):
-    billno = models.ForeignKey(PurchaseBill, on_delete = models.CASCADE, related_name='purchasedetailsbillno')
-    
+    billno = models.ForeignKey(PurchaseBill, on_delete = models.CASCADE, related_name='purchasedetailsbillno')    
     eway = models.CharField(max_length=50, blank=True, null=True)    
     veh = models.IntegerField(max_length=50, blank=False,null=True)
     destination = models.CharField(max_length=50, blank=True, null=True)
@@ -163,10 +178,13 @@ class SaleBillDetails(models.Model):
 
 class BOM(models.Model):
     name = models.CharField(max_length=100)
+    code = models.CharField(max_length=100)
     raw_materials = models.ManyToManyField(Stock, through='BOMRawMaterial')
+ 
 
     def __str__(self):
         return self.name
+    
     
     
 class BOMRawMaterial(models.Model):
@@ -185,7 +203,8 @@ class Production(models.Model):
     bom = models.ForeignKey(BOM, on_delete=models.CASCADE)
     quantity = models.FloatField()
     production_date = models.DateField(auto_now_add=True)
-    total_qty = models.FloatField(default=0)
+    total_qty = models.FloatField(default=0)    
+    code_sfg = models.CharField(max_length=100, blank=True, null=True)
     
     
     def __str__(self):
@@ -196,8 +215,22 @@ class Production(models.Model):
             self.total_qty = 0
         self.total_qty += self.quantity
         self.save()
-    
-    
+        
+        
+
+    def generate_code_sfg(self):
+        bom_code = self.bom.code
+        production_count = Production.objects.filter(bom=self.bom).count() + 1
+        self.code_sfg = f"{bom_code}/{production_count}"
+        self.save()
+
+    def save(self, *args, **kwargs):
+        if not self.code_sfg:
+            self.generate_code_sfg()
+        super().save(*args, **kwargs)
+  
+  
+   
 class FGSFG(models.Model):
     name = models.CharField(max_length=100)    
     sfg = models.ForeignKey(Production, on_delete=models.CASCADE)    
@@ -211,16 +244,28 @@ class FGSFG(models.Model):
         return f"FGSFG: {self.name}, SFG: {self.sfg.bom}"   
    
     
-    
 class ProductionFG(models.Model):
     bom = models.ForeignKey(BOM, on_delete=models.CASCADE)    
     quantity_bom = models.FloatField()
     sfg = models.ForeignKey(Production, on_delete=models.CASCADE)
     quantity_sfg = models.FloatField()    
     production_date = models.DateField(auto_now_add=True)
+    code_fg = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return f" {self.bom} - {self.sfg.bom.name}"
+    
+    
+    def generate_code_fg(self):
+        bom_code = self.bom.code
+        production_count = ProductionFG.objects.filter(bom=self.bom).count() + 1
+        self.code_fg = f"{bom_code}/{production_count}"
+        self.save()
+
+    def save(self, *args, **kwargs):
+        if not self.code_fg:
+            self.generate_code_fg()
+        super().save(*args, **kwargs)
     
 
 class Leadtimesfg(models.Model):
@@ -243,9 +288,7 @@ class Leadtimefg(models.Model):
     
         
        
-
-           
-    
+ 
     
     
    

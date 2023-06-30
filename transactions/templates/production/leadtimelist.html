@@ -1,9 +1,9 @@
 {% extends "base.html" %} {% load static %} {% block content %}
-<div class="container">
+<div class="container scrollable-content">
   <div class="row my-4">
     <div class="col-md-10">
       <div class="border bg-white text-center shadow offset-2 p-3">
-        <h3>Traceability List</h3>
+        <h3>SFG Production List</h3>
 
         <form
           method="GET"
@@ -29,19 +29,18 @@
             <tr>
               <th>Pro. ID</th>
               <th>Name</th>
-              <th>RM Code</th>
-              <th>Order Date</th>
-              <th>Completion Date</th>
+              <th>Quantity</th>
+              <th>Batch No</th>
+              <th>Date</th>
             </tr>
           </thead>
           <tbody>
             {% for leadtime in leadtimes %}
             <tr>
-              <td>{{ leadtime.sfg.id }}</td>
-              <td>{{ leadtime.sfg.bom }}</td>
-              <td>{{ leadtime.Rawcode }}</td>
-              <td>{{ leadtime.sfg.production_date }}</td>
-
+              <td>{{ leadtime.id }}</td>
+              <td>{{ leadtime.bom }}</td>
+              <td>{{ leadtime.quantity }}</td>
+              <td>{{ leadtime.code_sfg }}</td>
               <td>{{ leadtime.production_date }}</td>
             </tr>
             {% empty %}
@@ -55,4 +54,11 @@
     </div>
   </div>
 </div>
+
+<style>
+  .scrollable-content {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+</style>
 {% endblock %}

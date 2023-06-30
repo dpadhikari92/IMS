@@ -1,9 +1,9 @@
 {% extends "base.html" %} {% load static %} {% block content %}
-<div class="container">
+<div class="container" style="overflow-y: scroll; max-height: 400px">
   <div class="row my-4">
     <div class="col-md-10">
       <div class="border bg-white text-center shadow offset-2 p-3">
-        <h3>Traceability List</h3>
+        <h3>FG Production List</h3>
 
         <form
           method="GET"
@@ -29,20 +29,20 @@
             <tr>
               <th>Pro. ID</th>
               <th>Name</th>
-              <th>RM Code</th>
+              <th>Quantity</th>
+              <th>Batch No</th>
               <th>Order Date</th>
-              <th>Completion Date</th>
             </tr>
           </thead>
           <tbody>
             {% for leadtime in leadtimes %}
             <tr>
-              <td>{{ leadtime.sfg.id }}</td>
-              <td>{{ leadtime.sfg.bom }}</td>
-              <td>{{ leadtime.Rawcode }}</td>
-              <td>{{ leadtime.sfg.production_date }}</td>
+              <td>{{ leadtime.id }}</td>
+              <td>{{ leadtime.bom }}</td>
+              <td>{{ leadtime.quantity_bom }}</td>
+              <td>{{ leadtime.code_fg }}</td>
 
-              <td>{{ leadtime.production_date }}</td>
+              <td>{{ leadtime.sfg.production_date }}</td>
             </tr>
             {% empty %}
             <tr>

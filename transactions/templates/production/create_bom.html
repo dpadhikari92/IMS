@@ -23,7 +23,7 @@
           {% endfor %}
         </ul>
       </div>
-    {% endif %}
+      {% endif %}
       
       <form method="post">
         {% csrf_token %}
@@ -35,6 +35,17 @@
             name="name"
             id="name"
             placeholder="Enter BOM Name"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="code">BOM Code:</label>
+          <input
+            type="text"
+            class="form-control"
+            name="code"
+            id="code"
+            placeholder="Enter BOM Code"
             required
           />
         </div>
@@ -95,9 +106,7 @@
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const addRawMaterialBtn = document.getElementById("add-raw-material");
-        const rawMaterialsContainer = document.getElementById
-
-        ("raw-materials-container");
+        const rawMaterialsContainer = document.getElementById("raw-materials-container");
 
         let rawMaterialCount = 1;
 

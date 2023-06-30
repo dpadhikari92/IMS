@@ -1,0 +1,22 @@
+<!-- preview_pdf.html -->
+
+{% extends 'base.html' %} {% block content %}
+<!-- Display the PDF within an iframe or using a PDF viewer library -->
+<iframe src="{{ pdf_data.url }}" width="100%" height="600px"></iframe>
+
+<!-- Add buttons for completing or canceling the production order -->
+<form method="POST" action="{% url 'complete_production' %}">
+  {% csrf_token %}
+  <input type="hidden" name="bom" value="{{ bom_id }}" />
+  <input type="hidden" name="quantity" value="{{ quantity }}" />
+  <button type="submit">Complete Production</button>
+</form>
+
+<form method="POST" action="{% url 'cancel_production' %}">
+  {% csrf_token %}
+  <input type="hidden" name="bom" value="{{ bom_id }}" />
+  <input type="hidden" name="quantity" value="{{ quantity }}" />
+  <button type="submit">Cancel Production</button>
+</form>
+
+{% endblock %}

@@ -29,16 +29,14 @@ urlpatterns = [
     path("bomfg/list", views.bom_listFG, name="bomfg-list"),
     
     
-    path("production/", views.produce_item, name="production"),
+    path("production/", views.produce_item, name="production"),   
     path("production/list", views.produce_list, name="production-list"),
-     path("production/listfg", views.produce_listfg, name="production-listfg"),
+    path("production/listfg", views.produce_listfg, name="production-listfg"),
+    
+     
     
     path("production/record", views.leadtimesfg, name="production-record"),  
-     path("production/recordfg", views.leadtimefg, name="production-recordfg"),   
-     path("production/leadtime", views.leadtimelist, name="production-leadtimelist"),  
-      path("production/leadtimefg", views.leadtimelistfg, name="production-leadtimelistfg"),    
-      
-      
- 
-  
+    path("production/recordfg", views.leadtimefg, name="production-recordfg"),   
+    path("production/leadtime", views.leadtimelist, name="production-leadtimelist"),  
+    path("production/leadtimefg", views.leadtimelistfg, name="production-leadtimelistfg"),    
 ]
