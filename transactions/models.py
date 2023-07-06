@@ -12,10 +12,10 @@ from django.db.models import Sum
 #contains suppliers
 class Supplier(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=150)
-    phone = models.CharField(max_length=12, unique=True)
+    name = models.CharField(max_length=500)
+    phone = models.CharField(max_length=12, blank=True, null=True)
     address = models.CharField(max_length=200)
-    email = models.EmailField(max_length=254, unique=True)
+    email = models.EmailField(max_length=254,  blank=True, null=True)
     gstin = models.CharField(max_length=15, unique=True)
     is_deleted = models.BooleanField(default=False)
 
@@ -51,7 +51,7 @@ class PurchaseBill(models.Model):
 class PurchaseItem(models.Model):   
     billno = models.ForeignKey(PurchaseBill, on_delete=models.CASCADE, related_name='purchase_item')
     stock = models.ForeignKey(Stock, on_delete = models.CASCADE, related_name='purchase_items')
-    quantity = models.IntegerField(default=1)
+    quantity = models.FloatField(default=1.0)
     perprice = models.IntegerField(default=1)
     totalprice = models.IntegerField(default=1)
     supplier_no = models.CharField(default=1,max_length=12)
