@@ -1,5 +1,4 @@
 from random import choice
-from tkinter import Canvas
 from django import apps
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
