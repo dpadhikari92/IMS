@@ -18,7 +18,7 @@
       </div>
 
       <form method="post" action="{% url 'production-fgsfgbom' %}">
-        {% csrf_token %} {% messages %}
+        {% csrf_token %}
         <div class="form-group">
           <label for="name">FG BOM Name:</label>
           <input
