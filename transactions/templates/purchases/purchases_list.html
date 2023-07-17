@@ -66,8 +66,8 @@
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items %} {{ item.eway }} <br> {% endfor %}</td>
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.supplier_no }} <br> {% endfor %}</td>
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.quantity }} Kg<br> {% endfor %}</td>
-                <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.mfg_date }} <br> {% endfor %}</td>
-                <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.exp_date }} <br> {% endfor %}</td>
+                <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items %} {{ item.mfg }} <br> {% endfor %}</td>
+                <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items %} {{ item.exp }} <br> {% endfor %}</td>
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.purchase_code }} <br> {% endfor %}</td>
              
               <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items %} {{ item.destination }} <br> {% endfor %}</td>

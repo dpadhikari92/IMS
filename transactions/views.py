@@ -1,3 +1,5 @@
+from random import choice
+from tkinter import Canvas
 from django import apps
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
@@ -15,6 +17,8 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
+from io import BytesIO
+from reportlab.pdfgen import canvas
 
 
 from django.contrib.messages.views import SuccessMessageMixin
@@ -36,9 +40,12 @@ from .models import (
     ProductionFG,
     Leadtimesfg,
     Leadtimefg,
-    
-   
-    
+    SfgBom,
+    Sfgfinal,
+    sfgproduction,
+    FGSFGNEW,
+    fgproduction,
+    RawMaterialEntry,
 )
 from .forms import (
     SelectSupplierForm, 
@@ -170,9 +177,6 @@ class PurchaseView(ListView):
 
 
 
-
-
-
 # used to select the supplier
 class SelectSupplierView(View):
     form_class = SelectSupplierForm
@@ -206,8 +210,6 @@ class PurchaseCreateView(View):
     def post(self, request, pk):
         formset = PurchaseItemFormset(request.POST)
         supplierobj = get_object_or_404(Supplier, pk=pk)
-        
-    
 
         if formset.is_valid():
             billobj = PurchaseBill(supplier=supplierobj)
@@ -361,6 +363,9 @@ class PurchaseBillView(View):
             billdetailsobj.veh = form.cleaned_data['veh']
             billdetailsobj.destination = form.cleaned_data['destination']
             billdetailsobj.po = form.cleaned_data['po']
+            billdetailsobj.sup_invoice_no = form.cleaned_data['sup_invoice_no']
+            billdetailsobj.mfg = form.cleaned_data['mfg']
+            billdetailsobj.exp = form.cleaned_data['exp']
             
             # Fetch total from PurchaseItem model
             purchase_items = PurchaseItem.objects.filter(billno=billno)
@@ -709,10 +714,9 @@ def create_productionfg(request):
         sfgs = Production.objects.values('bom__name').distinct()
 
         return render(request, 'production/create_bomFG.html', {'boms': boms, 'sfgs': sfgs})
-
-
-
     
+    
+
 
 def generate_pdffg(bom, quantity_bom, quantity_sfg):
     buffer = io.BytesIO()
@@ -830,6 +834,8 @@ def leadtimesfg(request):
     sfg_list = Production.objects.filter(leadtimesfg__isnull=True)
     return render(request, 'production/leadtimesfg.html', {'sfg_list': sfg_list})
 
+
+
 def leadtimelist(request):
     query = request.GET.get('query')
     leadtimes = Production.objects.order_by('-id')
@@ -869,12 +875,14 @@ def leadtimefg(request):
     sfg_list = ProductionFG.objects.filter(leadtimefg__isnull=True)
     return render(request, 'production/leadtimefg.html', {'sfg_list': sfg_list})
 
+
+
 def leadtimelistfg(request):
     query = request.GET.get('query')
-    leadtimes = ProductionFG.objects.order_by('-id')
+    leadtimes = fgproduction.objects.order_by('-id')
 
     if query:
-        leadtimes = leadtimes.filter(sfg__bom__name__icontains=query)
+        leadtimes = leadtimes.filter(bom__name__icontains=query)
 
     paginator = Paginator(leadtimes, 10)  # Show 10 items per page
     page_number = request.GET.get('page')
@@ -898,6 +906,290 @@ def bom_details(request, bom_id):
 
 
 
+
+def create_sfg_bom(request):
+    if request.method == 'POST':
+       
+        sfg_id = request.POST['sfg']
+        quantity_sfg = request.POST['quantity_sfg']
+
+     
+        sfg = Production.objects.get(id=sfg_id)
+
+        sfg_bom = SfgBom( sfg=sfg, quantity_sfg=quantity_sfg)
+        sfg_bom.save()
+
+        messages.success(request, 'BOM saved successfully.')  # Add success message
+
+        return redirect('sfgbom')  # Replace 'bom_list' with the appropriate URL name for the BOM list view
+
+    else:
+        boms = BOM.objects.all()
+        productions = Production.objects.all()
+
+        context = {
+            'boms': boms,
+            'productions': productions,
+        }
+
+        return render(request, 'production/bom_sfg.html', context)
+
+
+
+
+
+def create_sfgfinal(request):
+    if request.method == 'POST':
+        # Get the selected BOM and SfgBom names from the form data
+        bom_name = request.POST.get('bom')
+        sfg_name = request.POST.get('sfg')
+
+        # Retrieve the BOM and SfgBom objects based on the selected names
+        bom = BOM.objects.get(name=bom_name)
+        sfg = SfgBom.objects.filter(name=sfg_name).first()
+
+        if sfg:
+            # Create and save the Sfgfinal object
+            sfgfinal = Sfgfinal(bom=bom, sfg=sfg)
+            sfgfinal.save()
+
+            # Redirect to a success page or do something else
+            return redirect('success')
+
+    # Retrieve the available BOM and unique SfgBom names for display in the form
+    boms = BOM.objects.all()
+    sfg_names = SfgBom.objects.values('sfg').distinct()
+
+    context = {
+        'boms': boms,
+        'sfg_names': sfg_names,
+    }
+    return render(request, 'production/create_sfgfinal.html', context)
+
+
+
+def create_fgsfgbom(request):
+    if request.method == 'POST':
+        name = request.POST['name']
+        code = request.POST['code']
+        sfg_id = request.POST['sfg']
+        quantity_sfg = request.POST['quantity_sfg']
+        raw_materials = request.POST.getlist('raw_materials[]')
+        quantities = request.POST.getlist('quantities[]')
+
+        sfg = BOM.objects.get(id=sfg_id)
+
+        fgsfgnew = FGSFGNEW(name=name, code=code, sfg=sfg, quantity_sfg=quantity_sfg)
+        fgsfgnew.save()
+
+        for material, quantity in zip(raw_materials, quantities):
+            raw_material = Stock.objects.get(id=material)
+            raw_material_entry = RawMaterialEntry(fgsfgnew=fgsfgnew, raw_material=raw_material, quantity_raw=quantity)
+            raw_material_entry.save()
+
+        messages.success(request, 'FGSFGNEW saved successfully.')
+        return redirect('production-fgsfgbomlist')
+
+    sfg_list = BOM.objects.all()
+    raw_materials = Stock.objects.all()
+    context = {
+        'sfg_list': sfg_list,
+        'raw_materials': raw_materials,
+    }
+
+    return render(request, 'production/create_fgsfgbom.html', context)
+
+
+
+
+
+from django.core.exceptions import ObjectDoesNotExist
+
+
+def sfg_production_view(request):
+    if request.method == 'POST':
+        bom_id = request.POST['bom']
+        quantity = float(request.POST.get('quantity', 0))
+
+        bom = FGSFGNEW.objects.get(id=bom_id)
+        raw_material_entries = bom.rawmaterialentry_set.all()
+        sfg_name=bom.sfg.name
+        sfg = Production.objects.filter(bom__name=sfg_name).first()
+        
+        if sfg is None:
+            messages.error(request, f'Production with name "{sfg_name}" does not exist')
+            return redirect('production-sfg')
+        
+       
+               # Check if inventory is sufficient
+        raw_materials = bom.raw_materials.all()
+        insufficient_inventory = False
+        insufficient_raw_materials = []
+        for raw_material in raw_materials:
+            bom_raw_material = RawMaterialEntry.objects.get(fgsfgnew=bom , raw_material=raw_material)
+           
+            quantity_required = float(bom_raw_material.quantity_raw) * quantity
+            
+            
+            
+            if raw_material.quantity < quantity_required:
+                insufficient_raw_materials.append((raw_material.name, quantity_required))
+                insufficient_inventory = True
+        
+        if insufficient_inventory:
+            messages.error(request, 'Insufficient inventory for the following raw materials:')
+            for material, required_quantity in insufficient_raw_materials:
+                messages.error(request, f'- {material}: {required_quantity}')
+            return redirect('production')  # Redirect to production list or desired URL
+        
+        # Deduct raw materials from inventory
+        for raw_material in raw_materials:
+            bom_raw_material = RawMaterialEntry.objects.get(fgsfgnew=bom  , raw_material=raw_material)
+            
+            quantity_required = float(bom_raw_material.quantity_raw) * quantity
+            
+            raw_material.quantity -= quantity_required
+            raw_material.save()   
+
+        # Calculate the SFG quantity
+        sfg_quantity = bom.quantity_sfg * quantity
+        
+        print(sfg_quantity)
+
+        # Check if inventory is sufficient for raw materials
+       
+
+        # Check if SFG quantity is available
+        if sfg.total_qty < sfg_quantity:
+            messages.error(request, 'Insufficient SFG quantity')
+            return redirect('bomfg')
+
+        # Deduct SFG quantity from production total_qty
+        sfg.total_qty -= sfg_quantity
+        sfg.save()
+
+        # Create and save the FGProduction object
+        production = fgproduction(bom=bom, quantity=quantity)
+        production.save()
+
+        messages.success(request, 'Order has been placed successfully')
+
+        # Generate PDF
+        pdf_data = generate_pdfsfgfg(bom, quantity)
+
+        # Return the PDF file as a response
+        response = FileResponse(pdf_data, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="production_report.pdf"'
+        return response
+
+    else:
+        boms = FGSFGNEW.objects.all()
+        return render(request, 'production/production_sfg.html', {'boms': boms})
+
+
+
+def generate_pdfsfgfg(bom, quantity):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+    styles = getSampleStyleSheet()
+
+    elements = []
+
+    # Production Details
+    fg_prod = fgproduction.objects.filter(bom=bom).latest('id')
+    production_id = fg_prod.bom.code
+    product_name = fg_prod.bom.name
+    product_quantity = fg_prod.quantity
+    product_code = fg_prod.code_fg
+    production_date = fg_prod.production_date.strftime('%Y-%m-%d')
+
+    elements.append(Paragraph("Instantina Flavours India Private Limited", styles['Heading1']))
+    elements.append(Paragraph("Production Report FG", styles['Heading1']))
+    elements.append(Paragraph(f"Product ID: {production_id}", styles['Heading3']))
+    elements.append(Paragraph(f"Batch No.: {product_code}", styles['Heading3']))
+    elements.append(Paragraph(f"Product Name: {product_name}", styles['Heading3']))
+
+    elements.append(Paragraph(f"Production Quantity Kg: {product_quantity}", styles['Heading3']))
+    elements.append(Paragraph(f"Date: {production_date}", styles['Normal']))
+    elements.append(Spacer(1, 0.8 * inch))
+
+    # Table Data
+    data = [["RM Code", "Raw Material", "Qty (Kg)", "SFG Name", "SFG Quantity (Kg)", "RM Batch no", "SFG Id", "Completion date"]]
     
     
+    raw_material_entries = bom.rawmaterialentry_set.all()
+    sfg_name_added = False  # Flag to track if sfg_name is added to data
+
+    for entry in raw_material_entries:
+        raw_material = entry.raw_material
+        quantity_raw = entry.quantity_raw
+
+        quantity_required = (quantity_raw * quantity)
+        
+
+        sfg_name = fg_prod.bom.sfg if fg_prod.bom.sfg and not sfg_name_added else ""
+        sfg_quantity = fg_prod.bom.quantity_sfg if fg_prod.bom.sfg and not sfg_name_added else 0    
+        sfg_total_qty=(sfg_quantity * quantity)
+
+        data.append([raw_material.item_code, raw_material.name, str(quantity_required), sfg_name, str(sfg_total_qty),])
+
+        # Set sfg_name_added to True if sfg_name is added to data
+        if sfg_name:
+            sfg_name_added = True
+
+    # Table Style
+    table_style = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+        ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 7),
+        ('TOPPADDING', (0, 1), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, -1), (-1, -1), 12),
+    ])
+
+    table = Table(data, colWidths=[80, 150, 80, 120, 80, 80, 80, 100])
+    table.setStyle(table_style)
+    elements.append(table)
+
+    doc.build(elements)
+
+    buffer.seek(0)
+    return buffer
+
+  
+       
+def fgsfgbom_list(request):
+    query = request.GET.get('query')
+    boms = FGSFGNEW.objects.all()
     
+    if query:
+        boms = boms.filter(name__icontains=query)
+    
+    context = {'boms': boms, 'query': query}
+    return render(request, 'production/fgsfgbom_list.html', context)
+
+
+
+
+def bom_detailsfgsfg(request, bom_id):
+    fgsfgnew = get_object_or_404(FGSFGNEW, pk=bom_id)
+    raw_materials = fgsfgnew.raw_materials.all()
+    sfgs = BOM.objects.filter(id=fgsfgnew.sfg_id)
+
+    context = {
+        'fgsfgnew': fgsfgnew,
+        'raw_materials': raw_materials,
+        'sfgs': sfgs,
+    }
+
+    return render(request, 'production/bom_detailsfgsfg.html', context)
+
+

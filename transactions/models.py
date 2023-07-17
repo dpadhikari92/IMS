@@ -56,12 +56,10 @@ class PurchaseItem(models.Model):
     totalprice = models.IntegerField(default=1)
     supplier_no = models.CharField(default=1,max_length=12)
     freight = models.IntegerField(max_length=50, blank=True, null=True)
-    mfg_date = models.DateField(default=datetime.date.today().strftime('%Y-%m-%d'))
-    exp_date=models.DateField(default=datetime.date.today().strftime('%Y-%m-%d'))
+    mfg_date = models.DateField(blank=True, null=True,default=datetime.date.today().strftime('%Y-%m-%d'))
+    exp_date=models.DateField(blank=True, null=True,default=datetime.date.today().strftime('%Y-%m-%d'))
     purchase_date = models.DateField(default=datetime.date.today().strftime('%Y-%m-%d'))
     purchase_code=models.CharField(max_length=100, blank=True, null=True)
-
-
 
     def __str__(self):
         return f"Bill no: {self.billno.billno}, Item: {self.stock.name}"
@@ -82,7 +80,10 @@ class PurchaseItem(models.Model):
 
 #contains the other details in the purchases bill
 class PurchaseBillDetails(models.Model):
-    billno = models.ForeignKey(PurchaseBill, on_delete = models.CASCADE, related_name='purchasedetailsbillno')    
+    billno = models.ForeignKey(PurchaseBill, on_delete = models.CASCADE, related_name='purchasedetailsbillno')  
+    sup_invoice_no=models.FloatField(max_length=50, blank=True, null=True)
+    mfg=models.CharField(max_length=50, blank=True, null=True)    
+    exp=models.CharField(max_length=50, blank=True, null=True)
     eway = models.CharField(max_length=50, blank=True, null=True)    
     veh = models.IntegerField(max_length=50, blank=False,null=True)
     destination = models.CharField(max_length=50, blank=True, null=True)
@@ -144,6 +145,8 @@ class SaleBill(models.Model):
         for item in saleitems:
             total += item.totalprice
         return total
+    
+    
 
 #contains the sale stocks made
 class SaleItem(models.Model):
@@ -199,6 +202,8 @@ class BOMRawMaterial(models.Model):
         return f"BOM: {self.bom.name}, Raw Material: {self.raw_material.name}"   
     
     
+    
+    
 class Production(models.Model):
     bom = models.ForeignKey(BOM, on_delete=models.CASCADE)
     quantity = models.FloatField()
@@ -217,7 +222,6 @@ class Production(models.Model):
         self.save()
         
         
-
     def generate_code_sfg(self):
         bom_code = self.bom.code
         production_count = Production.objects.filter(bom=self.bom).count() + 1
@@ -230,20 +234,7 @@ class Production(models.Model):
         super().save(*args, **kwargs)
   
   
-   
-class FGSFG(models.Model):
-    name = models.CharField(max_length=100)    
-    sfg = models.ForeignKey(Production, on_delete=models.CASCADE)    
-    raw_material = models.ForeignKey(Stock, on_delete=models.CASCADE)
-    quantity_sfg = models.FloatField()
-    quantity_raw = models.FloatField()
-
   
-
-    def __str__(self):
-        return f"FGSFG: {self.name}, SFG: {self.sfg.bom}"   
-   
-    
 class ProductionFG(models.Model):
     bom = models.ForeignKey(BOM, on_delete=models.CASCADE)    
     quantity_bom = models.FloatField()
@@ -266,6 +257,9 @@ class ProductionFG(models.Model):
         if not self.code_fg:
             self.generate_code_fg()
         super().save(*args, **kwargs)
+        
+        
+        
     
 
 class Leadtimesfg(models.Model):
@@ -289,6 +283,91 @@ class Leadtimefg(models.Model):
         
        
  
+class SfgBom(models.Model):   
+    sfg = models.ForeignKey(Production, on_delete=models.CASCADE)
+    quantity_sfg = models.FloatField()   
+    
+    def __str__(self):
+        return f" {self.sfg.bom.name}"
+     
+     
+class Sfgfinal(models.Model):
+    bom = models.ForeignKey(BOM, on_delete=models.CASCADE)
+    sfg = models.ForeignKey(SfgBom, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return f" {self.bom.name} -"
+
+    
+class FGSFG(models.Model):
+    name = models.CharField(max_length=100) 
+    code = models.CharField(max_length=100)    
+    sfg = models.ForeignKey(Production, on_delete=models.CASCADE) 
+    raw_material = models.ForeignKey(Stock, on_delete=models.CASCADE)
+    quantity_sfg = models.FloatField()
+    quantity_raw = models.FloatField()  
+
+    def __str__(self):
+        return f"FGSFG: {self.name}, {self.code}"      
     
     
-   
+
+
+class FGSFGNEW(models.Model):
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=100)    
+    sfg = models.ForeignKey(BOM, on_delete=models.CASCADE)
+    production = models.ForeignKey(Production, on_delete=models.CASCADE, null=True, blank=True)
+    raw_materials = models.ManyToManyField(Stock, through='RawMaterialEntry')
+    quantity_sfg = models.FloatField()
+    
+
+    def __str__(self):
+        return f"FGSFGNEW: {self.name}, SFG: {self.sfg}, Raw Material: {', '.join(str(raw_material) for raw_material in self.raw_materials.all())}"
+
+
+class RawMaterialEntry(models.Model):
+    fgsfgnew = models.ForeignKey(FGSFGNEW, on_delete=models.CASCADE)
+    raw_material = models.ForeignKey(Stock, on_delete=models.CASCADE)
+    quantity_raw = models.FloatField()
+
+    def __str__(self):
+        return f"Raw Material Entry: {self.raw_material}, Quantity: {self.quantity_raw}"
+
+
+    
+class sfgproduction(models.Model):
+    bom = models.ForeignKey(FGSFG, on_delete=models.CASCADE)    
+    quantity= models.FloatField()   
+    production_date = models.DateField(auto_now_add=True)    
+
+    def __str__(self):
+        return f" {self.bom} "
+    
+    
+
+class fgproduction(models.Model):
+    bom = models.ForeignKey(FGSFGNEW, on_delete=models.CASCADE) 
+    production = models.ForeignKey(Production, on_delete=models.CASCADE, null=True, blank=True)   
+    quantity= models.FloatField()   
+    code_fg = models.CharField(max_length=100, blank=True, null=True)
+    production_date = models.DateField(auto_now_add=True)    
+
+    def __str__(self):
+        return f" {self.bom} "
+    
+    
+    
+    def generate_code_fg(self):
+        bom_code = self.bom.code
+        production_count = fgproduction.objects.filter(bom=self.bom).count() + 1
+        self.code_fg = f"{bom_code}/{production_count}"
+        self.save()
+
+    def save(self, *args, **kwargs):
+        if not self.code_fg:
+            self.generate_code_fg()
+        super().save(*args, **kwargs)
+    
+    
+

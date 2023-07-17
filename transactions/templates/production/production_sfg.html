@@ -1,0 +1,51 @@
+{% extends "base.html" %} {% load crispy_forms_tags %} {% block content %}
+<div class="container">
+  <div class="row my-4">
+    <div class="col-md-10">
+      <div class="border bg-white text-center shadow offset-3 p-4">
+        <div style="height: 300px">
+          {% for message in messages %} {% if message %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endif %} {% endfor %}
+          <div
+            class="row"
+            style="color: #4e4e4e; font-weight: bold; font-size: 1.5rem"
+          >
+            <div class="col-md-12">Production FG</div>
+            <div class="col-md-4"></div>
+          </div>
+          <form method="post" action="{% url 'production-sfg' %}">
+            {% csrf_token %}
+            <div class="form-group mx-4 mt-4">
+              <label for="fgsfgnew">Select FGSFGNEW:</label>
+              <select name="bom" id="fgsfgnew" class="form-control" required>
+                <option value="">-- Select FGSFGNEW --</option>
+                {% for bom in boms %}
+                <option value="{{ bom.id }}">{{ bom.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group mx-4 mt-4">
+              <label for="quantity">Enter Quantity:</label>
+              <input
+                type="number"
+                name="quantity"
+                id="quantity"
+                class="form-control"
+                required
+              />
+            </div>
+            <br />
+            <div class="form-group mx-4 mt-4">
+              <button type="submit" class="btn login-btn btn-info btn-m">
+                Submit
+              </button>
+              <br />
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

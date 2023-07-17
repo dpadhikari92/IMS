@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Create Sfgfinal</title>
+  </head>
+  <body>
+    <h1>Create Sfgfinal</h1>
+    <form method="POST" action="{% url 'production-sfgfinal' %}">
+      {% csrf_token %}
+      <label for="bom">Select BOM:</label>
+      <select id="bom" name="bom">
+        {% for bom in boms %}
+        <option value="{{ bom.name }}">{{ bom.name }}</option>
+        {% endfor %}
+      </select>
+      <br /><br />
+      <label for="sfg">Select SfgBom:</label>
+      <select id="sfg" name="sfg">
+        {% for sfg_name in sfg_names %}
+        <option value="{{ sfg_name.sfg}}">{{ sfg_name.sfg.bom.name }}</option>
+        {% endfor %}
+      </select>
+      <br /><br />
+      <button type="submit">Save</button>
+    </form>
+  </body>
+</html>

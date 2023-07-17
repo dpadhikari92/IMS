@@ -91,7 +91,7 @@
                             class="inner-box"
                             style="width: 25%; font-weight: bold"
                           >
-                            &nbsp;INVOICE NO
+                            &nbsp;Serial NO
                           </td>
                           <td class="inner-box" style="width: 25%">
                             &nbsp;{{ bill.billno }}
@@ -134,6 +134,8 @@
                         </tr>
                         <tr></tr>
 
+                        
+
                         <tr>
                           <td
                             class="inner-box"
@@ -159,7 +161,7 @@
                             class="inner-box"
                             style="width: 25%; font-weight: bold"
                           >
-                            &nbsp;PO NO &amp; DATE
+                            &nbsp;Invoice No 
                           </td>
                           <td class="inner-box align-middle" style="width: 25%">
                             <input
@@ -291,6 +293,8 @@
                   </td>
                 </tr>
 
+                
+
                 <tr>
                   <td>
                     <table
@@ -302,8 +306,47 @@
                       "
                     >
                       <tbody>
-                        <br />
 
+                        <tr>
+                          <br />
+                          <td
+                            class="inner-box"
+                            style="width: 30%; font-weight: bold"
+                          >
+                            &nbsp;Mfg Date
+                          </td>
+                          <td class="inner-box align-middle" style="width: 30%">
+                            &nbsp;
+                            <input
+                              type="text"
+                              name="mfg"
+                              class="align-middle"                              
+                              style="border: 0; overflow: hidden"
+                              value="{% if billdetails.mfg %}{{ billdetails.mfg }}{% endif %}"
+                            />
+                          </td>
+                        </tr>
+                        
+                        
+                        <tr>
+                         
+                          <td
+                            class="inner-box"
+                            style="width: 30%; font-weight: bold"
+                          >
+                            &nbsp;Exp Date
+                          </td>
+                          <td class="inner-box align-middle" style="width: 30%">
+                            &nbsp;
+                            <input
+                              type="text"
+                              name="exp"
+                              class="align-middle"                              
+                              style="border: 0; overflow: hidden"
+                              value="{% if billdetails.exp %}{{ billdetails.exp }}{% endif %}"
+                            />
+                          </td>
+                        </tr>
                         <td
                         class="inner-box"
                         style="width: 30%; font-weight: bold"

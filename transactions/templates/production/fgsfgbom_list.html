@@ -3,7 +3,7 @@
   <div class="row my-4">
     <div class="col-md-10">
       <div class="border bg-white text-center shadow offset-2 p-3">
-        <h3>(BOM) List SFG</h3>
+        <h3>(BOM) List FG</h3>
 
         <form method="GET" action="{% url 'bom-list' %}" class="mb-3">
           <div class="input-group">
@@ -33,7 +33,9 @@
               <tr>
                 <td>{{ bom.id }}</td>
                 <td>
-                  <a href="{% url 'bom-details' bom.id %}">{{ bom.name }}</a>
+                  <a href="{% url 'production-details' bom.id %}"
+                    >{{ bom.name }}</a
+                  >
                 </td>
               </tr>
               {% empty %}

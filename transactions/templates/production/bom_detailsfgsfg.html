@@ -1,0 +1,90 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<div class="container">
+  <div class="row my-4">
+    <div class="col-md-10">
+      <div class="border bg-white text-center shadow offset-2 p-3">
+        <h3>BOM Details</h3>
+        <h4>BOM Name: {{ fgsfgnew.name }}</h4>
+
+        <div class="mt-4">
+          <label for="input_number">Production Qty In Kg.:</label>
+          <input
+            type="number"
+            id="input_number"
+            class="form-control"
+            min="0"
+            onchange="calculateTotals()"
+          />
+        </div>
+
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Raw Material Name</th>
+              <th>Quantity</th>
+              <th>Total Quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in fgsfgnew.rawmaterialentry_set.all %}
+            <tr>
+              <td>{{ entry.raw_material.name }}</td>
+              <td>{{ entry.quantity_raw }} kg.</td>
+              <td><span id="total_{{ forloop.counter }}">0</span> kg.</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3">No raw materials found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>SFG Name</th>
+              <th>Quantity</th>
+              <th>Total Quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{ fgsfgnew.sfg.name }}</td>
+              <td data-sfg-quantity="{{ fgsfgnew.quantity_sfg }}">
+                {{ fgsfgnew.quantity_sfg }} kg.
+              </td>
+              <td><span id="total_sfg">0</span> kg.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function calculateTotals() {
+    var input = document.getElementById("input_number");
+    var quantity = parseFloat(input.value);
+
+    var totalElements = document.querySelectorAll("[id^='total_']");
+    totalElements.forEach(function (element) {
+      var result =
+        quantity *
+        parseFloat(element.parentNode.previousElementSibling.textContent);
+      element.textContent = result;
+    });
+
+    var sfgTotalElement = document.getElementById("total_sfg");
+    var sfgQuantity = parseFloat(
+      document.querySelector("[data-sfg-quantity]").dataset.sfgQuantity
+    );
+    var sfgResult = quantity * sfgQuantity; // Calculate SFG total using the defined quantity
+    sfgTotalElement.textContent = sfgResult;
+  }
+</script>
+<td data-sfg-quantity="{{ fgsfgnew.quantity_sfg }}">
+  {{ fgsfgnew.quantity_sfg }} kg.
+</td>
+{% endblock %}

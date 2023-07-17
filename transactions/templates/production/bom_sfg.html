@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Create SFG BOM</title>
+  </head>
+  <body>
+    <h1>Create SFG BOM</h1>
+    <form method="POST" action="{% url 'sfgbom' %}">
+      {% csrf_token %}
+
+      <label for="sfg">Select SFG:</label>
+      <select name="sfg" id="sfg">
+        {% for sfg in productions %}
+        <option value="{{ sfg.id }}">{{ sfg.bom.name }}</option>
+        {% endfor %}
+      </select>
+      <br /><br />
+      <label for="quantity_sfg">SFG Quantity:</label>
+      <input
+        type="number"
+        name="quantity_sfg"
+        id="quantity_sfg"
+        step="0.01"
+        required
+      />
+      <br /><br />
+      <input type="submit" value="Save" />
+    </form>
+  </body>
+</html>

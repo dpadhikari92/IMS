@@ -14,6 +14,13 @@ from .models import (
     ProductionFG,
     Leadtimesfg,
     Leadtimefg,
+    SfgBom,
+    sfgproduction,
+    Sfgfinal,
+    FGSFGNEW,
+    fgproduction,
+    RawMaterialEntry,
+    
     
     
 )
@@ -30,6 +37,11 @@ admin.site.register(SaleItem)
 admin.site.register(SaleBillDetails)
 admin.site.register(Leadtimesfg)
 admin.site.register(FGSFG)
-
+admin.site.register(SfgBom)
+admin.site.register(Sfgfinal)
+admin.site.register(sfgproduction)
 admin.site.register(ProductionFG)
 admin.site.register( Leadtimefg)
+admin.site.register(fgproduction)
+admin.site.register(RawMaterialEntry)
+admin.site.register( FGSFGNEW)

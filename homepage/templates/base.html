@@ -65,8 +65,11 @@
           ></a>
           <ul class="side-dropdown">
             <li>
-              <a href="{% url 'bom'%}">Create Bom</a>
+              <a href="{% url 'bom'%}">Create Bom SFG</a>
             </li>   
+            <li>
+              <a href="{% url 'production-fgsfgbom'%}">Create Bom FG</a>
+            </li> 
           
        
           </ul>
@@ -81,7 +84,7 @@
               <a href="{% url 'production'%}">Semi Finished Goods</a>
             </li>   
             <li>
-              <a href="{% url 'bomfg' %}">Finished Goods</a>
+              <a href="{% url 'production-sfg' %}">Finished Goods</a>
             </li>
        
           </ul>
@@ -166,8 +169,14 @@
             </li>
          
             <li>
-              <a href="{% url 'production-leadtimelistfg'%}">FG </a>
-            </li>
+              <a href="{% url 'production-leadtimelistfg'%}">FG Production</a>           </li>
+            
+          
+           
+             
+       
+              
+           
 
           </ul>
         </li>
@@ -229,9 +238,9 @@
       {% block content %}{% endblock content %}
     </section>
     <!-- NAVBAR -->
-
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="{% static 'js/script.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
     <script src="{% static 'bootstrap/jquery-3.3.1.slim.min.js' %}"></script>
     <script src="{% static 'bootstrap/popper.min.js' %}"></script>
     <script src="{% static 'bootstrap/bootstrap.min.js' %}"></script>

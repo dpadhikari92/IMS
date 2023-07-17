@@ -53,7 +53,7 @@ class PurchaseItemForm(forms.ModelForm):
  
     class Meta:
         model = PurchaseItem
-        fields = ['stock', 'quantity', 'perprice','mfg_date','exp_date','supplier_no','freight']
+        fields = ['stock', 'quantity', 'mfg_date','exp_date','perprice','supplier_no','freight']
 
 # formset used to render multiple 'PurchaseItemForm'
 PurchaseItemFormset = formset_factory(PurchaseItemForm, extra=1)
@@ -62,7 +62,7 @@ PurchaseItemFormset = formset_factory(PurchaseItemForm, extra=1)
 class PurchaseDetailsForm(forms.ModelForm):
     class Meta:
         model = PurchaseBillDetails
-        fields = ['eway','veh', 'destination', 'po', 'cgst', 'sgst', 'igst', 'freight' ,'total']
+        fields = ['eway','veh', 'destination', 'po', 'cgst', 'sgst', 'igst', 'freight' ,'total','sup_invoice_no','mfg','exp']
 
 
 # form used for supplier
