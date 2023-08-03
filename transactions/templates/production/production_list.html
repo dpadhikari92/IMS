@@ -24,14 +24,14 @@
           <thead>
             <tr>
               <th>SFG Name</th>
-              <th>Inventory</th>
+              <th>Total Quantity (Kg)</th>
             </tr>
           </thead>
           <tbody>
             {% for production in productions %}
             <tr>
               <td>{{ production.bom__name }}</td>
-              <td>{{ production.latest_total_qty|floatformat:5 }} Kg</td>
+              <td>{{ production.sum_quantity|floatformat:5 }} Kg</td>
             </tr>
             {% empty %}
             <tr>

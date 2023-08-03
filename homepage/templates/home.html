@@ -39,74 +39,8 @@
 
       <br />
 
-      <div class="content-section">
-        <div class="row">
-          <!-- Log on to codeastro.com for more projects -->
 
-          <div class="col-md-4 offset-1">
-            <div
-              style="
-                color: #4e6570;
-                font-style: bold;
-                font-size: 1.3em;
-                border-bottom: 2px solid #4e6570;
-                text-center
-              "
-            >
-              Recent Sales
-            </div>
             <br />
-            {% for item in sales %} {% if not forloop.first %}
-            <br />
-            <div style="border-bottom: 0.5px solid #4e6570"></div>
-            <br />
-            {% endif %}
-            <div class="row">
-              <div class="col-md-9">
-                Bill No: #{{ item.billno }} <br />
-                Purchased by <b>{{ item.name }}</b> <br />
-                <small><i>{{ item.time.date }}</i></small>
-              </div>
-              <div class="col-md-2">
-                <br />
-                ${{ item.get_total_price }} <br />
-                <a href="{% url 'sale-bill' item.billno %}">View Bill</a>
-              </div>
-            </div>
-            {% endfor %}
-          </div>
-
-          <div class="col-md-4 offset-1">
-            <div
-              style="
-                color: #4e6570;
-                font-style: bold;
-                font-size: 1.3em;
-                border-bottom: 2px solid #4e6570;
-                text-center
-              "
-            >
-              Recent Purchases
-            </div>
-            <br />
-            {% for item in purchases %} {% if not forloop.first %}
-            <br />
-            <div style="border-bottom: 0.5px solid #4e6570"></div>
-            <br />
-            {% endif %}
-            <div class="row">
-              <!-- Log on to codeastro.com for more projects -->
-              <div class="col-md-9">
-                Bill No: #{{ item.billno }} <br />
-                Purchased by <b>{{ item.supplier.name }}</b> <br />
-                <small><i>{{ item.time.date }}</i></small>
-              </div>
-              <div class="col-md-3">
-                <br />₹{{ item.get_total_price }} <br />
-                <a href="{% url 'purchase-bill' item.billno %}">View Bill</a>
-              </div>
-            </div>
-            {% endfor %}
           </div>
         </div>
       </div>

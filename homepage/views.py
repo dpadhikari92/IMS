@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import View, TemplateView
 from inventory.models import Stock
-from transactions.models import SaleBill, PurchaseBill,ProductionFG
+from transactions.models import fgproduction,SaleBill, PurchaseBill,ProductionFG
 
 
 from django.db.models import Sum
@@ -13,9 +13,9 @@ class HomeView(View):
         labels = []
         data = []
         production_queryset = (
-            ProductionFG.objects
+            fgproduction.objects
             .values('bom__name')  # Group by BOM name
-            .annotate(total_production=Sum('quantity_sfg'))  # Calculate sum of quantity_sfg
+            .annotate(total_production=Sum('quantity'))  # Calculate sum of quantity
             .order_by('-total_production')
         )
         for production in production_queryset:

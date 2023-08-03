@@ -39,12 +39,30 @@
             </div>
 
             <br />
-
             <div class="form-group mx-4 mt-4">
-              <button type="submit" class="btn login-btn btn-info btn-m">
-                Create Production Order
-              </button>
+              <div class="offset-md-2 col-md-10">
+                <button
+                  type="submit"
+                  class="btn login-btn btn-info btn-m"
+                  id="createOrderBtn"
+                >
+                  Create Production Order
+                </button>
+              </div>
             </div>
+
+            <script>
+              const createOrderBtn = document.getElementById("createOrderBtn");
+
+              createOrderBtn.addEventListener("click", function () {
+                // Hide the button after the first click
+                createOrderBtn.style.display = "none";
+
+                // Perform your form submission or AJAX request here
+                // For example, you can use fetch() or submit the form:
+                // document.getElementById("yourFormId").submit();
+              });
+            </script>
           </form>
 
           {% if pdf_link %}

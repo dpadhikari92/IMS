@@ -1,5 +1,5 @@
 {% extends "base.html" %} {% load static %} {% block content %}
-<div class="container" style="overflow-y: scroll; max-height: 400px">
+<div class="container" style="overflow-y: scroll; max-height: 700px">
   <div class="row my-4">
     <div class="col-md-10">
       <div class="border bg-white text-center shadow offset-2 p-3">
@@ -29,7 +29,7 @@
             <tr>
               <th>Pro. ID</th>
               <th>Name</th>
-              <th>Quantity</th>
+              <th>Quantity (KG)</th>
               <th>Batch No</th>
               <th>Order Date</th>
             </tr>
@@ -38,7 +38,7 @@
             {% for leadtime in leadtimes %}
             <tr>
               <td>{{ leadtime.id }}</td>
-              <td>{{ leadtime.bom }}</td>
+              <td>{{ leadtime.bom.name }}</td>
               <td>{{ leadtime.quantity }}</td>
               <td>{{ leadtime.code_fg }}</td>
               <td>{{ leadtime.production_date }}</td>

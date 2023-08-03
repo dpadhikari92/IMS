@@ -536,7 +536,7 @@ def generate_pdf(bom, quantity):
     elements = []
 
     # Production Details
-    product_code=BOM.objects.latest("id").code
+    product_code = BOM.objects.latest("id").code
     production_id = Production.objects.latest('id').code_sfg
     product_name = Production.objects.latest('id').bom
     product_quantity = Production.objects.latest('id').quantity
@@ -553,15 +553,19 @@ def generate_pdf(bom, quantity):
 
     # Table Data
     data = [["Raw Material Code", "Raw Material", "Quantity Required (Kg)","RM Batch No","Best Before"]]
+    total_quantity = 0  # Variable to hold the total quantity
 
     bom_raw_materials = BOMRawMaterial.objects.filter(bom=bom)
-    for bom_raw_material in bom_raw_materials:      
+    for bom_raw_material in bom_raw_materials:
         quantity_required = round(bom_raw_material.quantity * quantity, 5)
-
         stock = bom_raw_material.raw_material
         data.append([stock.item_code, stock.name, str(quantity_required)])
+        total_quantity += quantity_required  # Accumulate the total quantity
 
-    # Table Style
+    # Add the row for total quantity
+    data.append(["Total", "", str(total_quantity), "", ""])
+
+    # Table Style (unchanged)
     table_style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
@@ -577,8 +581,9 @@ def generate_pdf(bom, quantity):
         ('TOPPADDING', (0, 1), (-1, -1), 4),
         ('BOTTOMPADDING', (0, -1), (-1, -1), 12),
     ])
+   
 
-    table = Table(data, colWidths=[150, 150, 150,100,100])
+    table = Table(data, colWidths=[150, 150, 150, 100, 100])
     table.setStyle(table_style)
     elements.append(table)
 
@@ -586,7 +591,6 @@ def generate_pdf(bom, quantity):
 
     buffer.seek(0)
     return buffer
-
 
 
     
@@ -626,19 +630,19 @@ def bom_listFG(request):
     return render(request, 'production/bom_listfg.html', context)  
 
 
-from django.db.models import Max
-
 def produce_list(request):
     query = request.GET.get('query')
     productions = Production.objects.all()
-    
+
     if query:
         productions = productions.filter(bom__name__icontains=query)
-    
-    productions = productions.values('bom__name').annotate(latest_total_qty=Max('total_qty'))
-    
+
+    # Calculate the sum of quantity for each `bom__name`
+    productions = productions.values('bom__name').annotate(sum_quantity=Sum('quantity'))
+
     context = {'productions': productions, 'query': query}
     return render(request, 'production/production_list.html', context)
+
 
 
 
@@ -1004,7 +1008,6 @@ def create_fgsfgbom(request):
 
 from django.core.exceptions import ObjectDoesNotExist
 
-
 def sfg_production_view(request):
     if request.method == 'POST':
         bom_id = request.POST['bom']
@@ -1012,78 +1015,66 @@ def sfg_production_view(request):
 
         bom = FGSFGNEW.objects.get(id=bom_id)
         raw_material_entries = bom.rawmaterialentry_set.all()
-        sfg_name=bom.sfg.name
-        sfg = Production.objects.filter(bom__name=sfg_name).first()
-        
-        if sfg is None:
-            messages.error(request, f'Production with name "{sfg_name}" does not exist')
-            return redirect('production-sfg')
-        
-       
-               # Check if inventory is sufficient
+        sfg_name = bom.sfg.name
+        sfg_quantity = bom.quantity_sfg * quantity
+
+        # Check if inventory is sufficient
         raw_materials = bom.raw_materials.all()
         insufficient_inventory = False
         insufficient_raw_materials = []
         for raw_material in raw_materials:
-            bom_raw_material = RawMaterialEntry.objects.get(fgsfgnew=bom , raw_material=raw_material)
-           
+            bom_raw_material = RawMaterialEntry.objects.get(fgsfgnew=bom, raw_material=raw_material)
+
             quantity_required = float(bom_raw_material.quantity_raw) * quantity
-            
-            
-            
+
             if raw_material.quantity < quantity_required:
                 insufficient_raw_materials.append((raw_material.name, quantity_required))
                 insufficient_inventory = True
-        
+
         if insufficient_inventory:
             messages.error(request, 'Insufficient inventory for the following raw materials:')
             for material, required_quantity in insufficient_raw_materials:
                 messages.error(request, f'- {material}: {required_quantity}')
-            return redirect('production')  # Redirect to production list or desired URL
-        
-        # Deduct raw materials from inventory
-        for raw_material in raw_materials:
-            bom_raw_material = RawMaterialEntry.objects.get(fgsfgnew=bom  , raw_material=raw_material)
-            
-            quantity_required = float(bom_raw_material.quantity_raw) * quantity
-            
-            raw_material.quantity -= quantity_required
-            raw_material.save()   
+            return redirect('production')
 
-        # Calculate the SFG quantity
-        sfg_quantity = bom.quantity_sfg * quantity
-        
-        print(sfg_quantity)
+        # Retrieve suitable SFG productions in ascending order of quantity
+        sfgs = Production.objects.filter(bom__name=sfg_name).order_by('quantity')
 
-        # Check if inventory is sufficient for raw materials
-       
+        # Check if any suitable SFG production is available
+        for sfg in sfgs:
+            if sfg.quantity >= sfg_quantity:
+                # Sufficient SFG quantity is available, deduct the required quantity from the production
+                sfg.quantity -= sfg_quantity
+                sfg.save()
 
-        # Check if SFG quantity is available
-        if sfg.total_qty < sfg_quantity:
-            messages.error(request, 'Insufficient SFG quantity')
-            return redirect('bomfg')
+                # Create and save the FGProduction object
+                production = fgproduction(bom=bom, quantity=quantity)
+                production.save()
 
-        # Deduct SFG quantity from production total_qty
-        sfg.total_qty -= sfg_quantity
-        sfg.save()
+                messages.success(request, 'Order has been placed successfully')
 
-        # Create and save the FGProduction object
-        production = fgproduction(bom=bom, quantity=quantity)
-        production.save()
+                # Generate PDF
+                pdf_data = generate_pdfsfgfg(bom, quantity)
 
-        messages.success(request, 'Order has been placed successfully')
+                # Return the PDF file as a response
+                response = FileResponse(pdf_data, content_type='application/pdf')
+                response['Content-Disposition'] = 'attachment; filename="production_report.pdf"'
+                return response
+            else:
+                # Insufficient SFG quantity in this production, try the next production
+                sfg_quantity -= sfg.quantity
+                sfg.quantity = 0
+                sfg.save()
 
-        # Generate PDF
-        pdf_data = generate_pdfsfgfg(bom, quantity)
-
-        # Return the PDF file as a response
-        response = FileResponse(pdf_data, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="production_report.pdf"'
-        return response
+        # If this point is reached, it means there is no sufficient SFG quantity in any production
+        messages.error(request, 'Insufficient SFG quantity')
+        return redirect('production-sfg')
 
     else:
         boms = FGSFGNEW.objects.all()
         return render(request, 'production/production_sfg.html', {'boms': boms})
+
+
 
 
 

@@ -354,7 +354,7 @@ class fgproduction(models.Model):
     production_date = models.DateField(auto_now_add=True)    
 
     def __str__(self):
-        return f" {self.bom} "
+        return f" {self.bom.name} "
     
     
     
