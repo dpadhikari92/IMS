@@ -316,15 +316,24 @@ class FGSFG(models.Model):
 class FGSFGNEW(models.Model):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=100)    
-    sfg = models.ForeignKey(BOM, on_delete=models.CASCADE)
+    sfg = models.ManyToManyField(BOM, through='MultipleSFG')
     production = models.ForeignKey(Production, on_delete=models.CASCADE, null=True, blank=True)
     raw_materials = models.ManyToManyField(Stock, through='RawMaterialEntry')
-    quantity_sfg = models.FloatField()
+    
     
 
     def __str__(self):
         return f"FGSFGNEW: {self.name}, SFG: {self.sfg}, Raw Material: {', '.join(str(raw_material) for raw_material in self.raw_materials.all())}"
 
+
+class MultipleSFG(models.Model):
+    fgsfgnew = models.ForeignKey(FGSFGNEW, on_delete=models.CASCADE)
+    sfg = models.ForeignKey(BOM, on_delete=models.CASCADE)
+    quantity_sfg = models.FloatField()    
+    
+    def __str__(self):
+        return f"MultipleSFG: {self.sfg}, Quantity: {self.quantity_sfg}"
+    
 
 class RawMaterialEntry(models.Model):
     fgsfgnew = models.ForeignKey(FGSFGNEW, on_delete=models.CASCADE)

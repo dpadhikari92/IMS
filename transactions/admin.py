@@ -20,6 +20,7 @@ from .models import (
     FGSFGNEW,
     fgproduction,
     RawMaterialEntry,
+    MultipleSFG,
     
     
     
@@ -45,3 +46,5 @@ admin.site.register( Leadtimefg)
 admin.site.register(fgproduction)
 admin.site.register(RawMaterialEntry)
 admin.site.register( FGSFGNEW)
+admin.site.register(MultipleSFG)
+

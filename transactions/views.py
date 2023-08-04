@@ -1,4 +1,5 @@
 from random import choice
+from django.contrib.auth.decorators import login_required, permission_required
 from django import apps
 from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
@@ -45,6 +46,7 @@ from .models import (
     FGSFGNEW,
     fgproduction,
     RawMaterialEntry,
+    MultipleSFG,
 )
 from .forms import (
     SelectSupplierForm, 
@@ -971,26 +973,34 @@ def create_sfgfinal(request):
 
 
 
+# ... (existing code)
+
 def create_fgsfgbom(request):
     if request.method == 'POST':
         name = request.POST['name']
         code = request.POST['code']
-        sfg_id = request.POST['sfg']
-        quantity_sfg = request.POST['quantity_sfg']
+        sfg_ids = request.POST.getlist('sfg[]')
+        quantities_sfg = request.POST.getlist('quantity_sfg[]')
         raw_materials = request.POST.getlist('raw_materials[]')
-        quantities = request.POST.getlist('quantities[]')
+        quantities_raw = request.POST.getlist('quantities[]')
 
-        sfg = BOM.objects.get(id=sfg_id)
-
-        fgsfgnew = FGSFGNEW(name=name, code=code, sfg=sfg, quantity_sfg=quantity_sfg)
+        # Save Finished Goods (FG) entry
+        fgsfgnew = FGSFGNEW(name=name, code=code)
         fgsfgnew.save()
 
-        for material, quantity in zip(raw_materials, quantities):
+        # Save Semi-Finished Goods (SFG) for the FG entry
+        for sfg_id, quantity_sfg in zip(sfg_ids, quantities_sfg):
+            sfg = BOM.objects.get(id=sfg_id)
+            multiple_sfg = MultipleSFG(fgsfgnew=fgsfgnew, sfg=sfg, quantity_sfg=quantity_sfg)
+            multiple_sfg.save()
+
+        # Save Raw Materials for the FG entry
+        for material, quantity_raw in zip(raw_materials, quantities_raw):
             raw_material = Stock.objects.get(id=material)
-            raw_material_entry = RawMaterialEntry(fgsfgnew=fgsfgnew, raw_material=raw_material, quantity_raw=quantity)
+            raw_material_entry = RawMaterialEntry(fgsfgnew=fgsfgnew, raw_material=raw_material, quantity_raw=quantity_raw)
             raw_material_entry.save()
 
-        messages.success(request, 'FGSFGNEW saved successfully.')
+        messages.success(request, 'FG BOM SAVED.')
         return redirect('production-fgsfgbomlist')
 
     sfg_list = BOM.objects.all()
@@ -1004,10 +1014,6 @@ def create_fgsfgbom(request):
 
 
 
-
-
-from django.core.exceptions import ObjectDoesNotExist
-
 def sfg_production_view(request):
     if request.method == 'POST':
         bom_id = request.POST['bom']
@@ -1015,10 +1021,15 @@ def sfg_production_view(request):
 
         bom = FGSFGNEW.objects.get(id=bom_id)
         raw_material_entries = bom.rawmaterialentry_set.all()
-        sfg_name = bom.sfg.name
-        sfg_quantity = bom.quantity_sfg * quantity
+        sfg_entries = MultipleSFG.objects.filter(fgsfgnew=bom)
+        sfg_quantity_needed = {}
 
-        # Check if inventory is sufficient
+        # Calculate total required quantity for each SFG
+        for entry in sfg_entries:
+            sfg_name = entry.sfg.name
+            sfg_quantity_needed[sfg_name] = sfg_quantity_needed.get(sfg_name, 0) + (entry.quantity_sfg * quantity)
+
+        # Check if inventory is sufficient for all raw materials
         raw_materials = bom.raw_materials.all()
         insufficient_inventory = False
         insufficient_raw_materials = []
@@ -1037,36 +1048,38 @@ def sfg_production_view(request):
                 messages.error(request, f'- {material}: {required_quantity}')
             return redirect('production')
 
-        # Retrieve suitable SFG productions in ascending order of quantity
-        sfgs = Production.objects.filter(bom__name=sfg_name).order_by('quantity')
+        # Check if sufficient SFG quantity is available for all SFGs
+        for sfg_name, sfg_quantity in sfg_quantity_needed.items():
+            # Retrieve suitable SFG productions in ascending order of quantity
+            sfgs = Production.objects.filter(bom__name=sfg_name).order_by('quantity')
 
-        # Check if any suitable SFG production is available
-        for sfg in sfgs:
-            if sfg.quantity >= sfg_quantity:
-                # Sufficient SFG quantity is available, deduct the required quantity from the production
-                sfg.quantity -= sfg_quantity
-                sfg.save()
+            # Check if any suitable SFG production is available
+            for sfg in sfgs:
+                if sfg.quantity >= sfg_quantity:
+                    # Sufficient SFG quantity is available, deduct the required quantity from the production
+                    sfg.quantity -= sfg_quantity
+                    sfg.save()
 
-                # Create and save the FGProduction object
-                production = fgproduction(bom=bom, quantity=quantity)
-                production.save()
+                    # Create and save the FGProduction object
+                    production = fgproduction(bom=bom, quantity=quantity)
+                    production.save()
 
-                messages.success(request, 'Order has been placed successfully')
+                    # Generate PDF
+                    pdf_data = generate_pdfsfgfg(bom, quantity)
+                    
+                    messages.success(request, 'Production order placed')
 
-                # Generate PDF
-                pdf_data = generate_pdfsfgfg(bom, quantity)
+                    # Return the PDF file as a response
+                    response = FileResponse(pdf_data, content_type='application/pdf')
+                    response['Content-Disposition'] = 'attachment; filename="production_report.pdf"'
+                    return response
+                else:
+                    # Insufficient SFG quantity in this production, try the next production
+                    sfg_quantity -= sfg.quantity
+                    sfg.quantity = 0
+                    sfg.save()
 
-                # Return the PDF file as a response
-                response = FileResponse(pdf_data, content_type='application/pdf')
-                response['Content-Disposition'] = 'attachment; filename="production_report.pdf"'
-                return response
-            else:
-                # Insufficient SFG quantity in this production, try the next production
-                sfg_quantity -= sfg.quantity
-                sfg.quantity = 0
-                sfg.save()
-
-        # If this point is reached, it means there is no sufficient SFG quantity in any production
+        # If this point is reached, it means there is no sufficient SFG quantity in any production for at least one SFG
         messages.error(request, 'Insufficient SFG quantity')
         return redirect('production-sfg')
 
@@ -1103,32 +1116,17 @@ def generate_pdfsfgfg(bom, quantity):
     elements.append(Paragraph(f"Date: {production_date}", styles['Normal']))
     elements.append(Spacer(1, 0.8 * inch))
 
-    # Table Data
-    data = [["RM Code", "Raw Material", "Qty (Kg)", "SFG Name", "SFG Quantity (Kg)", "RM Batch no", "SFG Id", "Completion date"]]
-    
-    
+    # Table Data for Raw Materials
+    data_raw_material = [["RM Code", "Raw Material", "Qty (Kg)"]]
     raw_material_entries = bom.rawmaterialentry_set.all()
-    sfg_name_added = False  # Flag to track if sfg_name is added to data
-
     for entry in raw_material_entries:
         raw_material = entry.raw_material
         quantity_raw = entry.quantity_raw
+        quantity_required = quantity_raw * quantity
+        data_raw_material.append([raw_material.item_code, raw_material.name, str(quantity_required)])
 
-        quantity_required = (quantity_raw * quantity)
-        
-
-        sfg_name = fg_prod.bom.sfg if fg_prod.bom.sfg and not sfg_name_added else ""
-        sfg_quantity = fg_prod.bom.quantity_sfg if fg_prod.bom.sfg and not sfg_name_added else 0    
-        sfg_total_qty=(sfg_quantity * quantity)
-
-        data.append([raw_material.item_code, raw_material.name, str(quantity_required), sfg_name, str(sfg_total_qty),])
-
-        # Set sfg_name_added to True if sfg_name is added to data
-        if sfg_name:
-            sfg_name_added = True
-
-    # Table Style
-    table_style = TableStyle([
+    # Table Style for Raw Materials
+    table_style_raw_material = TableStyle([
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
@@ -1145,16 +1143,51 @@ def generate_pdfsfgfg(bom, quantity):
         ('BOTTOMPADDING', (0, -1), (-1, -1), 12),
     ])
 
-    table = Table(data, colWidths=[80, 150, 80, 120, 80, 80, 80, 100])
-    table.setStyle(table_style)
-    elements.append(table)
+    table_raw_material = Table(data_raw_material, colWidths=[200,200,200])
+    table_raw_material.setStyle(table_style_raw_material)
+    elements.append(Paragraph("Raw Materials", styles['Heading2']))
+    elements.append(table_raw_material)
+
+    # Table Data for SFGs
+    data_sfg = [["SFG Name", "SFG Quantity (Kg)"]]
+    sfg_entries = MultipleSFG.objects.filter(fgsfgnew=bom)
+    for sfg_entry in sfg_entries:
+        sfg_name = sfg_entry.sfg.name
+        sfg_quantity = sfg_entry.quantity_sfg * quantity
+        data_sfg.append([sfg_name, str(sfg_quantity)])
+
+    # Table Style for SFGs
+    table_style_sfg = TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+        ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 7),
+        ('TOPPADDING', (0, 1), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, -1), (-1, -1), 12),
+    ])
+
+    table_sfg = Table(data_sfg, colWidths=[200,200])
+    table_sfg.setStyle(table_style_sfg)
+    elements.append(Spacer(1, 0.2 * inch))
+    elements.append(Paragraph("Semi-Finished Goods (SFGs)", styles['Heading2']))
+    elements.append(table_sfg)
 
     doc.build(elements)
 
     buffer.seek(0)
     return buffer
 
-  
+
+
+
        
 def fgsfgbom_list(request):
     query = request.GET.get('query')
@@ -1171,8 +1204,8 @@ def fgsfgbom_list(request):
 
 def bom_detailsfgsfg(request, bom_id):
     fgsfgnew = get_object_or_404(FGSFGNEW, pk=bom_id)
-    raw_materials = fgsfgnew.raw_materials.all()
-    sfgs = BOM.objects.filter(id=fgsfgnew.sfg_id)
+    raw_materials = fgsfgnew.raw_materials.through.objects.filter(fgsfgnew=fgsfgnew)
+    sfgs = fgsfgnew.sfg.through.objects.filter(fgsfgnew=fgsfgnew)
 
     context = {
         'fgsfgnew': fgsfgnew,
@@ -1181,5 +1214,6 @@ def bom_detailsfgsfg(request, bom_id):
     }
 
     return render(request, 'production/bom_detailsfgsfg.html', context)
+
 
 

@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
+
 {% block content %}
-<div class="container p-2">
+{% if user.is_authenticated and user.is_staff and user.is_superuser %}
+<div class="container p-2"> 
+   
+
   <div class="row my-2">
     <div class="col-md-10 offset-1 shadow bg-light">
       <div class="row" style="color: #4e4e4e; font-style: bold; font-size: 2rem; ">
@@ -102,6 +106,7 @@
         <br /><br />
         <button type="submit" class="btn btn-primary">Create BOM</button>
       </form>
+     
     </div>
 
     <script>
@@ -153,4 +158,5 @@
     </script>
   </div>
 </div>
+{% endif %}
 {% endblock content %}

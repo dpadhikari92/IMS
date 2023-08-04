@@ -17,9 +17,9 @@
           <form method="post" action="{% url 'production-sfg' %}">
             {% csrf_token %}
             <div class="form-group mx-4 mt-4">
-              <label for="fgsfgnew">Select FGSFGNEW:</label>
+              <label for="fgsfgnew">Select FG Bom:</label>
               <select name="bom" id="fgsfgnew" class="form-control" required>
-                <option value="">-- Select FGSFGNEW --</option>
+                <option value="">-- Select --</option>
                 {% for bom in boms %}
                 <option value="{{ bom.id }}">{{ bom.name }}</option>
                 {% endfor %}

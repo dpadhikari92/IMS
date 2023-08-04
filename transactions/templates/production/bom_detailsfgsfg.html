@@ -26,7 +26,7 @@
             </tr>
           </thead>
           <tbody>
-            {% for entry in fgsfgnew.rawmaterialentry_set.all %}
+            {% for entry in raw_materials %}
             <tr>
               <td>{{ entry.raw_material.name }}</td>
               <td>{{ entry.quantity_raw }} kg.</td>
@@ -49,13 +49,19 @@
             </tr>
           </thead>
           <tbody>
+            {% for sfg in sfgs %}
             <tr>
-              <td>{{ fgsfgnew.sfg.name }}</td>
-              <td data-sfg-quantity="{{ fgsfgnew.quantity_sfg }}">
-                {{ fgsfgnew.quantity_sfg }} kg.
+              <td>{{ sfg.sfg.name }}</td>
+              <td data-sfg-quantity="{{ sfg.quantity_sfg }}">
+                {{ sfg.quantity_sfg }} kg.
               </td>
-              <td><span id="total_sfg">0</span> kg.</td>
+              <td><span id="total_sfg_{{ forloop.counter }}">0</span> kg.</td>
             </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3">No SFGs found.</td>
+            </tr>
+            {% endfor %}
           </tbody>
         </table>
       </div>
@@ -84,7 +90,4 @@
     sfgTotalElement.textContent = sfgResult;
   }
 </script>
-<td data-sfg-quantity="{{ fgsfgnew.quantity_sfg }}">
-  {{ fgsfgnew.quantity_sfg }} kg.
-</td>
 {% endblock %}
