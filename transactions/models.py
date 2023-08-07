@@ -1,3 +1,4 @@
+from decimal import ROUND_HALF_UP, Decimal
 from django.db import models
 from django.shortcuts import render, get_object_or_404
 
@@ -85,7 +86,7 @@ class PurchaseBillDetails(models.Model):
     mfg=models.CharField(max_length=50, blank=True, null=True)    
     exp=models.CharField(max_length=50, blank=True, null=True)
     eway = models.CharField(max_length=50, blank=True, null=True)    
-    veh = models.IntegerField(max_length=50, blank=False,null=True)
+    veh = models.FloatField(max_length=50, blank=False,null=True)
     destination = models.CharField(max_length=50, blank=True, null=True)
     po = models.CharField(max_length=50, blank=True, null=True)    
     cgst = models.FloatField(max_length=50, blank=True, null=True)
@@ -108,6 +109,12 @@ class PurchaseBillDetails(models.Model):
                 igst = cgst + sgst
                 grand_total = total_price + cgst + sgst
 
+                # Round the calculated values to 2 decimal places
+                cgst = round(cgst, 2)
+                sgst = round(sgst, 2)
+                igst = round(igst, 2)
+                grand_total = round(grand_total)  # Round off to the nearest whole number
+
                 # Assign calculated values to fields
                 self.total = str(total_price)
                 self.cgst = str(cgst)
@@ -118,8 +125,9 @@ class PurchaseBillDetails(models.Model):
 
             super().save(*args, **kwargs)
 
-    def __str__(self):
-        return "Bill no: " + str(self.billno.billno)
+def __str__(self):
+            return "Bill no: " + str(self.billno.billno)
+
 
 
 #contains the sale bills made
