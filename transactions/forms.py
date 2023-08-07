@@ -32,7 +32,7 @@ class SelectSupplierForm(forms.ModelForm):
 class PurchaseItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['stock'].queryset = Stock.objects.filter(is_deleted=False)
+        self.fields['stock'].queryset = Stock.objects.filter(is_deleted=False).order_by('name')
         self.fields['stock'].widget.attrs.update({'class': 'textinput form-control setprice stock', 'required': 'true'})
         self.fields['quantity'].widget.attrs.update({'class': 'textinput form-control setprice quantity', 'min': '0', 'required': 'true'})
         self.fields['perprice'].widget.attrs.update({'class': 'textinput form-control setprice price', 'min': '0', 'required': 'true'}) 
