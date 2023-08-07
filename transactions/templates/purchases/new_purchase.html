@@ -67,6 +67,8 @@
           <form method="post" class="panel panel-default">
             {% csrf_token %} {{ formset.management_form }}
 
+            
+
             <a href="{% url 'new-stock' %}" > Add Stock</a>          
 
             <div id="stockitem">

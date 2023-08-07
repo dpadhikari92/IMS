@@ -62,7 +62,7 @@ PurchaseItemFormset = formset_factory(PurchaseItemForm, extra=1)
 class PurchaseDetailsForm(forms.ModelForm):
     class Meta:
         model = PurchaseBillDetails
-        fields = ['eway','veh', 'destination', 'po', 'cgst', 'sgst', 'igst', 'freight' ,'total','sup_invoice_no','mfg','exp']
+        fields = ['eway','veh', 'destination', 'po', 'cgst', 'sgst', 'igst', 'freight' ,'total','sup_invoice_no','mfg','exp','receipt_date',]
 
 
 # form used for supplier

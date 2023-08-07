@@ -364,6 +364,7 @@ class PurchaseBillView(View):
             billdetailsobj.veh = form.cleaned_data['veh']
             billdetailsobj.destination = form.cleaned_data['destination']
             billdetailsobj.po = form.cleaned_data['po']
+            billdetailsobj.receipt_date = form.cleaned_data['receipt_date']
             billdetailsobj.sup_invoice_no = form.cleaned_data['sup_invoice_no']
             billdetailsobj.mfg = form.cleaned_data['mfg']
             billdetailsobj.exp = form.cleaned_data['exp']

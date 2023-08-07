@@ -27,7 +27,7 @@ class Supplier(models.Model):
 #contains the purchase bills made
 class PurchaseBill(models.Model):
     billno = models.AutoField(primary_key=True)
-    time = models.DateTimeField(auto_now=True)
+    time = models.DateField(default=datetime.date.today().strftime('%Y-%m-%d'))
     supplier = models.ForeignKey(Supplier, on_delete = models.CASCADE, related_name='purchasesupplier')
     
 
@@ -85,6 +85,7 @@ class PurchaseBillDetails(models.Model):
     sup_invoice_no=models.FloatField(max_length=50, blank=True, null=True)
     mfg=models.CharField(max_length=50, blank=True, null=True)    
     exp=models.CharField(max_length=50, blank=True, null=True)
+    receipt_date=models.CharField(max_length=50, blank=True, null=True)
     eway = models.CharField(max_length=50, blank=True, null=True)    
     veh = models.FloatField(max_length=50, blank=False,null=True)
     destination = models.CharField(max_length=50, blank=True, null=True)
