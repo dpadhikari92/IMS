@@ -27,13 +27,13 @@ class Supplier(models.Model):
 #contains the purchase bills made
 class PurchaseBill(models.Model):
     billno = models.AutoField(primary_key=True)
-    time = models.DateField(default=datetime.date.today().strftime('%Y-%m-%d'))
+    time = models.DateField(auto_now_add=True)
     supplier = models.ForeignKey(Supplier, on_delete = models.CASCADE, related_name='purchasesupplier')
     
 
     def __str__(self):
 	    return "Bill no: " + str(self.billno)
-
+ 
     def get_items_list(self):
         return PurchaseItem.objects.filter(billno=self)
     
@@ -81,7 +81,7 @@ class PurchaseItem(models.Model):
 
 #contains the other details in the purchases bill
 class PurchaseBillDetails(models.Model):
-    billno = models.ForeignKey(PurchaseBill, on_delete = models.CASCADE, related_name='purchasedetailsbillno')  
+    billno = models.ForeignKey(PurchaseBill, on_delete = models.CASCADE, related_name='purchasedetailsbillno')      
     sup_invoice_no=models.FloatField(max_length=50, blank=True, null=True)
     mfg=models.CharField(max_length=50, blank=True, null=True)    
     exp=models.CharField(max_length=50, blank=True, null=True)

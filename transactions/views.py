@@ -150,7 +150,7 @@ class PurchaseView(ListView):
     model = PurchaseBill
     template_name = "purchases/purchases_list.html"
     context_object_name = 'bills'
-    ordering = ['-time']
+    ordering = ['-billno']
     paginate_by = 4  # Number of records per page
 
     def get_queryset(self):
@@ -174,6 +174,9 @@ class PurchaseView(ListView):
             context['bills'] = context['bills'][:4]
 
         return context
+    
+
+
 
 
 
@@ -365,6 +368,7 @@ class PurchaseBillView(View):
             billdetailsobj.destination = form.cleaned_data['destination']
             billdetailsobj.po = form.cleaned_data['po']
             billdetailsobj.receipt_date = form.cleaned_data['receipt_date']
+           
             billdetailsobj.sup_invoice_no = form.cleaned_data['sup_invoice_no']
             billdetailsobj.mfg = form.cleaned_data['mfg']
             billdetailsobj.exp = form.cleaned_data['exp']

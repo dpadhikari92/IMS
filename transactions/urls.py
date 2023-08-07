@@ -14,6 +14,12 @@ urlpatterns = [
     path('purchases/new/<pk>', views.PurchaseCreateView.as_view(), name='new-purchase'),    
     path('purchases/<pk>/delete', views.PurchaseDeleteView.as_view(), name='delete-purchase'),
     
+    
+    
+
+    
+    
+    
     path('sales/', views.SaleView.as_view(), name='sales-list'),
     path('sales/new', views.SaleCreateView.as_view(), name='new-sale'),
     path('sales/<pk>/delete', views.SaleDeleteView.as_view(), name='delete-sale'),
