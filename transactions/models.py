@@ -69,16 +69,7 @@ class PurchaseItem(models.Model):
 
     
     
-    def generate_code_purchase(self):
-        purchase_code = self.stock.item_code
-        purchase_count = PurchaseItem.objects.filter(stock=self.stock).count() + 1
-        self.purchase_code = f"{purchase_code}/{purchase_count}"
-        self.save()
 
-    def save(self, *args, **kwargs):
-        if not self.purchase_code:
-            self.generate_code_purchase()
-        super().save(*args, **kwargs)
             
 
 
