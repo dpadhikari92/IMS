@@ -1,3 +1,4 @@
+import datetime
 from random import choice
 from django.contrib.auth.decorators import login_required, permission_required
 from django import apps
@@ -468,8 +469,11 @@ def create_bom(request):
 def produce_item(request):
     if request.method == 'POST':
         bom_id = request.POST['bom']
-        quantity = float(request.POST.get('quantities', 0))  # Convert quantity to float, defaulting to 0 if missing
+        quantity = float(request.POST.get('quantities', 0)) 
+        production_date = request.POST.get('production_date')# Convert quantity to float, defaulting to 0 if missing
         
+        
+        production_date = datetime.datetime.strptime(production_date, '%Y-%m-%d').date()
         bom = BOM.objects.get(id=bom_id)
         
         # Check if inventory is sufficient
@@ -498,7 +502,7 @@ def produce_item(request):
             raw_material.save()
         
         # Save production data
-        production = Production(bom=bom, quantity=quantity)
+        production = Production(bom=bom, quantity=quantity, production_date=production_date)
         # Generate the code_sfg
         production.save()
         
@@ -1023,6 +1027,9 @@ def sfg_production_view(request):
     if request.method == 'POST':
         bom_id = request.POST['bom']
         quantity = float(request.POST.get('quantity', 0))
+        production_date = request.POST.get('production_date')
+        
+        production_date = datetime.datetime.strptime(production_date, '%Y-%m-%d').date()
 
         bom = FGSFGNEW.objects.get(id=bom_id)
         raw_material_entries = bom.rawmaterialentry_set.all()
@@ -1066,7 +1073,7 @@ def sfg_production_view(request):
                     sfg.save()
 
                     # Create and save the FGProduction object
-                    production = fgproduction(bom=bom, quantity=quantity)
+                    production = fgproduction(bom=bom, quantity=quantity,production_date=production_date)
                     production.save()
 
                     # Generate PDF

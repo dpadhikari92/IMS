@@ -216,7 +216,7 @@ class BOMRawMaterial(models.Model):
 class Production(models.Model):
     bom = models.ForeignKey(BOM, on_delete=models.CASCADE)
     quantity = models.FloatField()
-    production_date = models.DateField(auto_now_add=True)
+    production_date = models.DateField(default=datetime.date.today().strftime('%Y-%m-%d'))
     total_qty = models.FloatField(default=0)    
     code_sfg = models.CharField(max_length=100, blank=True, null=True)
     
@@ -369,7 +369,7 @@ class fgproduction(models.Model):
     production = models.ForeignKey(Production, on_delete=models.CASCADE, null=True, blank=True)   
     quantity= models.FloatField()   
     code_fg = models.CharField(max_length=100, blank=True, null=True)
-    production_date = models.DateField(auto_now_add=True)    
+    production_date = models.DateField(default=datetime.date.today().strftime('%Y-%m-%d'))
 
     def __str__(self):
         return f" {self.bom.name} "

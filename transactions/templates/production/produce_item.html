@@ -1,16 +1,17 @@
-{% extends "base.html" %} {% load crispy_forms_tags %} {% block content %}
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
 <div class="container">
   <div class="row my-4">
     <div class="col-md-10">
       <div class="border bg-white text-center shadow offset-3 p-4">
-        <div style="height: 300px">
-          {% for message in messages %} {% if message %}
+        <div style="height: 400px">
+          {% for message in messages %}
+          {% if message %}
           <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-          {% endif %} {% endfor %}
-          <div
-            class="row"
-            style="color: #4e4e4e; font-weight: bold; font-size: 1.5rem"
-          >
+          {% endif %}
+          {% endfor %}
+          <div class="row" style="color: #4e4e4e; font-weight: bold; font-size: 1.5rem">
             <div class="col-md-12">Production SFG</div>
             <div class="col-md-4"></div>
           </div>
@@ -38,6 +39,16 @@
               />
             </div>
 
+            <div class="form-group mx-4 mt-4">
+              <input
+                type="date"
+                required
+                name="production_date"
+                class="form-control"
+                placeholder="Production Date"
+              />
+            </div>
+
             <br />
             <div class="form-group mx-4 mt-4">
               <div class="offset-md-2 col-md-10">
@@ -50,20 +61,20 @@
                 </button>
               </div>
             </div>
-
-            <script>
-              const createOrderBtn = document.getElementById("createOrderBtn");
-
-              createOrderBtn.addEventListener("click", function () {
-                // Hide the button after the first click
-                createOrderBtn.style.display = "none";
-
-                // Perform your form submission or AJAX request here
-                // For example, you can use fetch() or submit the form:
-                // document.getElementById("yourFormId").submit();
-              });
-            </script>
           </form>
+
+          <script>
+            const createOrderBtn = document.getElementById("createOrderBtn");
+
+            createOrderBtn.addEventListener("click", function () {
+              // Hide the button after the first click
+              createOrderBtn.style.display = "none";
+
+              // Perform your form submission or AJAX request here
+              // For example, you can use fetch() or submit the form:
+              // document.getElementById("yourFormId").submit();
+            });
+          </script>
 
           {% if pdf_link %}
           <div class="form-group mx-4 mt-4">
