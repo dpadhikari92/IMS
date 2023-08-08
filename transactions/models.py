@@ -56,9 +56,6 @@ class PurchaseItem(models.Model):
     perprice = models.IntegerField(default=1)
     totalprice = models.IntegerField(default=1)
     supplier_no = models.CharField(max_length=50,blank=True, null=True)
-    freight = models.IntegerField(max_length=50, blank=True, null=True)
-    mfg_date = models.DateField(blank=True, null=True,default=datetime.date.today().strftime('%Y-%m-%d'))
-    exp_date=models.DateField(blank=True, null=True,default=datetime.date.today().strftime('%Y-%m-%d'))
     purchase_date = models.DateField(default=datetime.date.today().strftime('%Y-%m-%d'))
     purchase_code=models.CharField(max_length=100, blank=True, null=True)
 
