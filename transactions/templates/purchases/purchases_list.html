@@ -61,7 +61,7 @@
                 {% if purchase.supplier.is_deleted %}
                 {{ purchase.supplier }}<br>
                 {% else %}
-                <a  class="align-middle" style="font-size: 10px;">{{ purchase.supplier }}</a>{% endif %}  </td>
+                <a  class="align-middle" style="font-size: 11px;">{{ purchase.supplier }}</a>{% endif %}  </td>
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items %} {{ item.receipt_date }} <br> {% endfor %}</td>                 
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items %} {{ item.eway }} <br> {% endfor %}</td>
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.supplier_no }} <br> {% endfor %}</td>
