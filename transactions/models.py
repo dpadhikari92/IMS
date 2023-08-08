@@ -55,7 +55,7 @@ class PurchaseItem(models.Model):
     quantity = models.FloatField(default=1.0)
     perprice = models.IntegerField(default=1)
     totalprice = models.IntegerField(default=1)
-    supplier_no = models.CharField(default=1,max_length=12)
+    supplier_no = models.CharField(max_length=50,blank=True, null=True)
     freight = models.IntegerField(max_length=50, blank=True, null=True)
     mfg_date = models.DateField(blank=True, null=True,default=datetime.date.today().strftime('%Y-%m-%d'))
     exp_date=models.DateField(blank=True, null=True,default=datetime.date.today().strftime('%Y-%m-%d'))
