@@ -229,7 +229,7 @@ class PurchaseCreateView(View):
                 stock.quantity += billitem.quantity
                 stock.save()
                 
-                billitem.generate_code_purchase()
+               
                  
                 billitem.save()
                 stock.purchase_items.add(billitem)

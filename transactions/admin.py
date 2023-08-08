@@ -21,7 +21,7 @@ from .models import (
     fgproduction,
     RawMaterialEntry,
     MultipleSFG,
-    PurchaseCodeCounter,
+
     
     
     
@@ -48,5 +48,5 @@ admin.site.register(fgproduction)
 admin.site.register(RawMaterialEntry)
 admin.site.register( FGSFGNEW)
 admin.site.register(MultipleSFG)
-admin.site.register(PurchaseCodeCounter)
+
 
