@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Update Purchase</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    <table>
+      {{ formset.as_table }}
+    </table>
+
+    <button type="submit">Update Purchase</button>
+  </form>
+
+  <a href="{% url 'purchases-list' %}">Back to Purchases</a>
+{% endblock %}
