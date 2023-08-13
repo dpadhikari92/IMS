@@ -12,18 +12,13 @@ urlpatterns = [
     path('purchases/', views.PurchaseView.as_view(), name='purchases-list'), 
     path('purchases/new', views.SelectSupplierView.as_view(), name='select-supplier'), 
     path('purchases/new/<pk>', views.PurchaseCreateView.as_view(), name='new-purchase'), 
-    path('purchase/update/<int:billno>/', views.PurchaseUpdateView.as_view(), name='update-purchase'), 
+    
 
     path('purchases/<pk>/delete', views.PurchaseDeleteView.as_view(), name='delete-purchase'),
     
+    path('purchases/bill-list', views.bill_list, name='bill-list'),
     
-    
-    
-    
-
-    
-    
-    
+    path('purchase/bill-list/update/<int:billno>/', views.PurchaseUpdateView.as_view(), name='update-purchase'), 
     path('sales/', views.SaleView.as_view(), name='sales-list'),
     path('sales/new', views.SaleCreateView.as_view(), name='new-sale'),
     path('sales/<pk>/delete', views.SaleDeleteView.as_view(), name='delete-sale'),

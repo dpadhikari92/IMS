@@ -32,8 +32,7 @@ class SelectSupplierForm(forms.ModelForm):
 class PurchaseItemForm(forms.ModelForm):
     exp = forms.DateField(widget=forms.DateInput(attrs={'class': 'textinput form-control', 'type': 'date'}))
     mfg = forms.DateField(widget=forms.DateInput(attrs={'class': 'textinput form-control', 'type': 'date'}))
-    receipt_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'textinput form-control', 'type': 'date'}))
-   
+  
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['stock'].queryset = Stock.objects.filter(is_deleted=False).order_by('name')
@@ -45,7 +44,7 @@ class PurchaseItemForm(forms.ModelForm):
        
     class Meta:
         model = PurchaseItem
-        fields = ['stock', 'exp', 'mfg', 'quantity', 'perprice', 'supplier_no','receipt_date','coa']
+        fields = ['stock', 'exp', 'mfg', 'quantity', 'perprice', 'supplier_no','coa']
 
 # formset used to render multiple 'PurchaseItemForm'
 PurchaseItemFormset = formset_factory(PurchaseItemForm, extra=1)

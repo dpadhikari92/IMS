@@ -2,6 +2,7 @@ import datetime
 from random import choice
 from django.contrib.auth.decorators import login_required, permission_required
 from django import apps
+from django.db.models import Q
 # Import the transaction module
 
 from django.db.models import Sum
@@ -508,6 +509,36 @@ class SaleBillView(View):
         }
         return render(request, self.template_name, context)
  
+
+def bill_list(request):
+    search_query = request.GET.get('search', '')
+
+    bills = PurchaseBillDetails.objects.all()
+
+    if search_query:
+        bills = bills.filter(Q(billno__billno__icontains=search_query))
+        
+    bills = bills.order_by('-billno__billno')
+
+    # Rest of the pagination logic remains the same
+    items_per_page = 10
+
+    paginator = Paginator(bills, items_per_page)
+    page = request.GET.get('page')
+
+    try:
+        bills_paginated = paginator.page(page)
+    except PageNotAnInteger:
+        bills_paginated = paginator.page(1)
+    except EmptyPage:
+        bills_paginated = paginator.page(paginator.num_pages)
+
+    context = {
+        'bills': bills_paginated,
+        'search_query': search_query,  # Pass the search query back to the template
+    }
+    return render(request, 'purchases/bill_list.html', context)
+
 
 def create_bom(request):
     if request.method == 'POST':

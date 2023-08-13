@@ -10,15 +10,12 @@
               <h3>Update Purchase Items</h3>
             </center>
       
+            <br/>
+            <br/>
             <form method="post" class="panel panel-default">
               {% csrf_token %}
 
-              <div class="form-group col-md-3">
-                <label class="panel-body-text">Receipt date</label>
-                {% for form in formset|slice:":1" %}
-                  {{ form.receipt_date }}
-                {% endfor %}
-              </div>
+
               {{ formset.management_form }}
 
       

@@ -47,7 +47,7 @@
               <th width="10%" style="font-size: 10px;">Exp Date</th>
               <th width="10%" style="font-size: 10px;">Internal Batch No</th>
               <th width="10%" style="font-size: 10px;">Internal COA No</th>
-              <th width="40%" style="font-size: 10px;">Action</th>
+              <th width="40%" style="font-size: 10px;">Bill No.</th>
             </tr>
           </thead>
 
@@ -71,11 +71,8 @@
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.purchase_code }} <br> {% endfor %}</td>
              
               <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items %} {{ item.destination }} <br> {% endfor %}</td>
-              <td class="align-middle">
-                <a href="{% url 'update-purchase' billno=purchase.billno %}">Update</a>
-                <a href="{% url 'purchase-bill' purchase.billno %}">View</a>
-                <a href="{% url 'delete-purchase' purchase.pk %}" >Delete </a>
-              </td>
+              <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items %} {{ item.billno.billno }} <br> {% endfor %}</td>                 
+            
             </tr>
             {% endfor %}
           </tbody>

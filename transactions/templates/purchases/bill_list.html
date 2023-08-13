@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+   
+<div class="container p-2">
+    <div class="row my-2">
+        <div class="col-md-8 offset-2 shadow bg-light">
+            <center>
+                <h3>Bill List</h3>
+            </center>
+            <br/>
+          
+         
+                               <!-- Add a search form -->
+                               <form class="form-inline" method="get">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="search" value="{{ search_query }}" placeholder="Search by Bill No">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary" type="submit">Search</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <br/>
+                
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Bill Number</th>
+                          
+                            <th>Update Purchase Details</th>
+                            <th>View Bill</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in bills %}
+                        <tr>
+                            <td>{{ bill.billno.billno }}</td>
+                           
+                            <td><a href="{% url 'update-purchase' billno=bill.billno.billno %}">Update Purchase Details</a></td>
+                            <td><a href="{% url 'purchase-bill' billno=bill.billno.billno %}">View Bill</a></td>
+                            <!-- <td><a href="{% url 'delete-purchase' pk=bill.billno.pk %}">Delete</a></td>-->
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="pagination">
+                    <span class="step-links">
+                        {% if bills.has_previous %}
+                            <a class="btn btn-outline-info mb-4" href="?page=1">&laquo; first</a>
+                            <a class="btn btn-outline-info mb-4" href="?page={{ bills.previous_page_number }}">previous</a>
+                        {% endif %}
+
+                        <span class="current-page">
+                            Page {{ bills.number }} of {{ bills.paginator.num_pages }}.
+                        </span>
+
+                        {% if bills.has_next %}
+                        <a class="btn btn-outline-info mb-4" href="?page={{ bills.next_page_number }}">next</a>
+                            <a class="btn btn-outline-info mb-4" href="?page={{ bills.paginator.num_pages }}">last &raquo;</a>
+                        {% endif %}
+                    </span>
+                </div>
+           
+        </div>
+    </div>
+</div>
+{% endblock content %}

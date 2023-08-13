@@ -67,11 +67,6 @@
           <form method="post" class="panel panel-default">
             {% csrf_token %} {{ formset.management_form }}
 
-            {% for form in formset %}
-            <div class="form-group col-md-3">
-              <label class="panel-body-text">Receipt date</label>
-              {{ form.receipt_date}}
-          </div>{% endfor %}
 
             <a href="{% url 'new-stock' %}" > Add Stock</a>       
             
