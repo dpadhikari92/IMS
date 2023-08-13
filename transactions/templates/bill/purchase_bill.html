@@ -110,6 +110,7 @@
                           <input
                             type="text"
                             name="receipt_date"
+                            placeholder="dd-mm-yyyy"
                             class="align-middle"
                             style="border: 0; overflow: hidden"
                             value="{% if billdetails.receipt_date %}{{ billdetails.receipt_date }}{% endif %}"
@@ -137,6 +138,7 @@
                             <input
                               type="text"
                               name="eway"
+                              placeholder="dd-mm-yyyy"
                               class="align-middle"
                               style="border: 0; overflow: hidden"
                               value="{% if billdetails.eway %}{{ billdetails.eway }}{% endif %}"
@@ -318,46 +320,8 @@
                     >
                       <tbody>
 
-                        <tr>
-                          <br />
-                          <td
-                            class="inner-box"
-                            style="width: 30%; font-weight: bold"
-                          >
-                            &nbsp;Mfg Date
-                          </td>
-                          <td class="inner-box align-middle" style="width: 30%">
-                            &nbsp;
-                            <input
-                              type="text"
-                              name="mfg"
-                              class="align-middle"                              
-                              style="border: 0; overflow: hidden"
-                              value="{% if billdetails.mfg %}{{ billdetails.mfg }}{% endif %}"
-                            />
-                          </td>
-                        </tr>
-                        
-                        
-                        <tr>
-                         
-                          <td
-                            class="inner-box"
-                            style="width: 30%; font-weight: bold"
-                          >
-                            &nbsp;Exp Date
-                          </td>
-                          <td class="inner-box align-middle" style="width: 30%">
-                            &nbsp;
-                            <input
-                              type="text"
-                              name="exp"
-                              class="align-middle"                              
-                              style="border: 0; overflow: hidden"
-                              value="{% if billdetails.exp %}{{ billdetails.exp }}{% endif %}"
-                            />
-                          </td>
-                        </tr>
+
+                       
                         <td
                         class="inner-box"
                         style="width: 30%; font-weight: bold"

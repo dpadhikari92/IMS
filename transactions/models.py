@@ -55,12 +55,16 @@ class PurchaseBill(models.Model):
 class PurchaseItem(models.Model):   
     billno = models.ForeignKey(PurchaseBill, on_delete=models.CASCADE, related_name='purchase_item')
     stock = models.ForeignKey(Stock, on_delete = models.CASCADE, related_name='purchase_items')
+    exp = models.DateField(default=datetime.date.today)  # Add the exp field
+    mfg = models.DateField(default=datetime.date.today)  # Add the mfg field
+    receipt_date = models.DateField(default=datetime.date.today)
     quantity = models.FloatField(default=1.0)
     perprice = models.IntegerField(default=1)
     totalprice = models.IntegerField(default=1)
-    supplier_no = models.CharField(max_length=50,blank=True, null=True)
-    purchase_date = models.DateField(default=datetime.date.today().strftime('%Y-%m-%d'))
-    purchase_code=models.CharField(max_length=100, blank=True, null=True)
+    coa = models.CharField(max_length=50, blank=True, null=True)
+    supplier_no = models.CharField(max_length=50, blank=True, null=True)
+    
+    purchase_code = models.CharField(max_length=100, blank=True, null=True)
     
     
     def __str__(self):

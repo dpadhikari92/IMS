@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Purchase List</title>
+</head>
+<body>
+    <h1>Purchase List</h1>
+    <ul>
+        {% for purchase in purchases %}
+        <li>Bill Number: {{ purchase.billno.billno }}, Item: {{ purchase.stock.name }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

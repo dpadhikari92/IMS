@@ -11,7 +11,9 @@ urlpatterns = [
 
     path('purchases/', views.PurchaseView.as_view(), name='purchases-list'), 
     path('purchases/new', views.SelectSupplierView.as_view(), name='select-supplier'), 
-    path('purchases/new/<pk>', views.PurchaseCreateView.as_view(), name='new-purchase'),    
+    path('purchases/new/<pk>', views.PurchaseCreateView.as_view(), name='new-purchase'), 
+    path('purchase/update/<int:billno>/', views.PurchaseUpdateView.as_view(), name='update-purchase'), 
+
     path('purchases/<pk>/delete', views.PurchaseDeleteView.as_view(), name='delete-purchase'),
     
     
@@ -32,6 +34,10 @@ urlpatterns = [
     path("bom/", views.create_bom, name="bom"),
     path("bom/list", views.bom_list, name="bom-list"),
     path("bom/details/<int:bom_id>", views.bom_details, name="bom-details"),
+    path("bom/<int:bom_id>/update/", views.update_bom, name="bom-update"),
+    
+    
+    
     
     path("sfgbom",views.create_sfg_bom,name="sfgbom"),
 
@@ -50,9 +56,12 @@ urlpatterns = [
     path("production/list", views.produce_list, name="production-list"),
     path("production/listfg", views.produce_listfg, name="production-listfg"),
     
+    
+    
     path("production/fgsfgbom", views.create_fgsfgbom, name="production-fgsfgbom"),
     path("production/fgsfgbomlist", views.fgsfgbom_list, name="production-fgsfgbomlist"),
     path("production/details/<int:bom_id>", views.bom_detailsfgsfg, name="production-details"),
+    path('production/fgsfgbom/<int:fgsfg_id>/update/', views.update_fgsfgbom, name='update-fgsfgbom'),
     
     
     path("production/record", views.leadtimesfg, name="production-record"),  

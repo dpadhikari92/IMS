@@ -15,7 +15,7 @@
         </div>
       </div>
 
-      <form method="post" action="{% url 'production-fgsfgbom' %}">
+      <form method="post" action="{% url 'update-fgsfgbom' fgsfg.id %}">
         {% csrf_token %}
         <div class="form-group">
           <label for="name">FG BOM Name:</label>
@@ -26,6 +26,7 @@
             id="name"
             placeholder="Enter BOM Name"
             required
+            value="{{ fgsfg.name }}"
           />
         </div>
         <div class="form-group">
@@ -37,20 +38,22 @@
             id="code"
             placeholder="Enter BOM Code"
             required
+            value="{{ fgsfg.code }}"
           />
         </div>
         <br />
 
         <!-- SFGs section -->
         <div id="sfgs-container">
+          {% for sfg_entry in existing_sfg_entries %}
           <div class="row sfg-entry">
             <div class="col-md-6">
               <div class="form-group">
                 <label for="sfg">SFG:</label>
                 <select name="sfg[]" class="form-control" required>
-                  <option value="" selected disabled>Select SFG</option>
+                  <option value="" disabled>Select SFG</option>
                   {% for sfg in sfg_list %}
-                  <option value="{{ sfg.id }}">{{ sfg.name }}</option>
+                  <option value="{{ sfg.id }}" {% if sfg.id == sfg_entry.sfg.id %}selected{% endif %}>{{ sfg.name }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -65,6 +68,7 @@
                   name="quantity_sfg[]"
                   placeholder="Enter Quantity"
                   required
+                  value="{{ sfg_entry.quantity_sfg }}"
                 />
               </div>
             </div>
@@ -74,6 +78,7 @@
               </button>
             </div>
           </div>
+          {% endfor %}
         </div>
         <button type="button" class="btn btn-primary" id="add-sfg-entry">
           Add SFG
@@ -82,38 +87,38 @@
 
         <!-- Raw materials section -->
         <div id="raw-materials-container">
+          {% for raw_material_entry in existing_raw_material_entries %}
           <div class="row raw-material">
             <div class="col-md-6">
               <div class="form-group">
-                <label for="raw-material-1">Raw Material:</label>
+                <label for="raw-material-{{ forloop.counter }}">Raw Material:</label>
                 <select
                   name="raw_materials[]"
                   class="form-control"
-                  id="raw-material-1"
+                  id="raw-material-{{ forloop.counter }}"
                   required
                 >
-                  <option value="" selected disabled>
+                  <option value="" disabled>
                     Select Raw Material
                   </option>
                   {% for raw_material in raw_materials %}
-                  <option value="{{ raw_material.id }}">
-                    {{ raw_material.name }}
-                  </option>
+                  <option value="{{ raw_material.id }}" {% if raw_material.id == raw_material_entry.raw_material.id %}selected{% endif %}>{{ raw_material.name }}</option>
                   {% endfor %}
                 </select>
               </div>
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label for="quantity-1">Quantity kg:</label>
+                <label for="quantity-{{ forloop.counter }}">Quantity kg:</label>
                 <input
                   type="number"
                   step="any"
                   class="form-control"
                   name="quantities[]"
-                  id="quantity-1"
+                  id="quantity-{{ forloop.counter }}"
                   placeholder="Enter Quantity"
                   required
+                  value="{{ raw_material_entry.quantity_raw }}"
                 />
               </div>
             </div>
@@ -123,13 +128,14 @@
               </button>
             </div>
           </div>
+          {% endfor %}
         </div>
         <button type="button" class="btn btn-primary" id="add-raw-material">
           Add Raw Material
         </button>
         <br /><br />
 
-        <button type="submit" class="btn btn-primary">Create BOM</button>
+        <button type="submit" class="btn btn-primary">Update BOM</button>
       </form>
     </div>
   </div>

@@ -26,6 +26,7 @@
               <tr>
                 <th>BOM ID</th>
                 <th>BOM Name</th>
+                <th>Update</th>
               </tr>
             </thead>
             <tbody>
@@ -34,6 +35,9 @@
                 <td>{{ bom.id }}</td>
                 <td>
                   <a href="{% url 'bom-details' bom.id %}">{{ bom.name }}</a>
+                </td>
+                <td>
+                  <a href="{% url 'bom-update' bom_id=bom.id %}">Update BOM</a>
                 </td>
               </tr>
               {% empty %}

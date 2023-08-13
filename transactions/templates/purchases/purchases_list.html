@@ -7,7 +7,7 @@
 {% block content %}
 <div class="container p-2">
   <div class="row my-2">
-    <div class="col-md-10 offset-md-1 shadow bg-light">
+    <div class="col-md-12  shadow bg-light">
       <div class="row" style="color: #4e4e4e; font-weight: bold; font-size: 2rem;">
         <div class="col-md-9">Purchase History</div>
         <div class="col-md-3 p-3">
@@ -66,12 +66,13 @@
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items %} {{ item.eway }} <br> {% endfor %}</td>
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.supplier_no }} <br> {% endfor %}</td>
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.quantity }} Kg<br> {% endfor %}</td>
-                <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items %} {{ item.mfg }} <br> {% endfor %}</td>
-                <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items %} {{ item.exp }} <br> {% endfor %}</td>
+                <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.mfg }} <br> {% endfor %}</td>
+                <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.exp }} <br> {% endfor %}</td>
                 <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items_list %} {{ item.purchase_code }} <br> {% endfor %}</td>
              
               <td class="align-middle" style="font-size: 10px;">{% for item in purchase.get_items %} {{ item.destination }} <br> {% endfor %}</td>
               <td class="align-middle">
+                <a href="{% url 'update-purchase' billno=purchase.billno %}">Update</a>
                 <a href="{% url 'purchase-bill' purchase.billno %}">View</a>
                 <a href="{% url 'delete-purchase' purchase.pk %}" >Delete </a>
               </td>

@@ -2,7 +2,10 @@ import datetime
 from random import choice
 from django.contrib.auth.decorators import login_required, permission_required
 from django import apps
+# Import the transaction module
+
 from django.db.models import Sum
+from django.forms import formset_factory, modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import (
     View, 
@@ -50,14 +53,14 @@ from .models import (
     MultipleSFG,
 )
 from .forms import (
+    PurchaseItemForm,
     SelectSupplierForm, 
     PurchaseItemFormset,
     PurchaseDetailsForm, 
     SupplierForm, 
     SaleForm,
     SaleItemFormset,
-    SaleDetailsForm,
-   
+    SaleDetailsForm, 
     
 )
 from inventory.models import Stock
@@ -65,6 +68,8 @@ from . import models
 
 from django_filters.views import FilterView
 from .filters import BOMFilter
+from django.db import transaction  
+
 
 
 
@@ -178,10 +183,6 @@ class PurchaseView(ListView):
     
 
 
-
-
-
-
 # used to select the supplier
 class SelectSupplierView(View):
     form_class = SelectSupplierForm
@@ -243,6 +244,72 @@ class PurchaseCreateView(View):
         return render(request, self.template_name, context)
 
 
+
+
+
+class PurchaseUpdateView(View):
+    
+        template_name = 'purchases/update_purchase.html'  # Update with your template name
+
+        
+        def get(self, request, billno):
+            billobj = get_object_or_404(PurchaseBill, billno=billno)
+            PurchaseItemFormset = modelformset_factory(PurchaseItem, form=PurchaseItemForm, extra=0)
+            formset = PurchaseItemFormset(queryset=billobj.purchase_item.all())
+            context = {
+                'formset': formset,
+                'billno': billno,
+            }
+            return render(request, self.template_name, context)
+
+        def post(self, request, billno):
+            billobj = get_object_or_404(PurchaseBill, billno=billno)
+            PurchaseItemFormset = modelformset_factory(PurchaseItem, form=PurchaseItemForm, extra=0)
+            formset = PurchaseItemFormset(request.POST, queryset=billobj.purchase_item.all())
+
+            if formset.is_valid():
+                # Update existing items and quantities in the stock
+                for form, old_item in zip(formset, billobj.purchase_item.all()):
+                    new_item = form.save(commit=False)
+                    old_quantity = old_item.quantity
+                    old_stock = get_object_or_404(Stock, name=old_item.stock.name)
+                    old_stock.quantity -= old_quantity
+                    old_stock.save()
+
+                    new_quantity = new_item.quantity
+                    new_stock = get_object_or_404(Stock, name=new_item.stock.name)
+                    new_stock.quantity += new_quantity
+                    new_stock.save()
+
+                    new_item.totalprice = new_item.perprice * new_quantity
+                    new_item.save()
+
+                    old_item.delete()
+
+                # Add new items to the bill
+                for form in formset:
+                    new_item = form.save(commit=False)
+                    new_quantity = new_item.quantity
+                    new_stock = get_object_or_404(Stock, name=new_item.stock.name)
+                    new_stock.quantity += new_quantity
+                    new_stock.save()
+
+                    new_item.totalprice = new_item.perprice * new_quantity
+                    new_item.billno = billobj
+                    new_item.save()
+
+                messages.success(request, "Purchase items have been updated successfully")
+                return redirect('purchase-bill', billno=billno)
+
+            context = {
+                'formset': formset,
+                'billno': billno,
+            }
+            return render(request, self.template_name, context)
+
+
+
+    
 
 # used to delete a bill object
 class PurchaseDeleteView(SuccessMessageMixin, DeleteView):
@@ -376,7 +443,7 @@ class PurchaseBillView(View):
             
             # Fetch total from PurchaseItem model
             purchase_items = PurchaseItem.objects.filter(billno=billno)
-            total_price = purchase_items.aggregate(Sum('totalprice')).get('totalprice__sum', 0)
+            total_price = purchase_items.aggregate(Sum('totalprice')).get('totalprice__sum', 0.0)
 
             # Apply calculations based on user input and fetched total
             if total_price:
@@ -604,14 +671,6 @@ def generate_pdf(bom, quantity):
     return buffer
 
 
-    
-
-from django.db.models import Q
-
-
-
-
-from django.shortcuts import get_object_or_404
 
 def bom_list(request):
     query = request.GET.get('query')
@@ -622,6 +681,45 @@ def bom_list(request):
     
     context = {'boms': boms, 'query': query}
     return render(request, 'production/bom_list.html', context)
+
+
+
+
+def update_bom(request, bom_id):
+    try:
+        bom = BOM.objects.get(id=bom_id)
+    except BOM.DoesNotExist:
+        messages.error(request, 'BOM not found.')
+        return redirect('bom-list')
+
+    if request.method == 'POST':
+        raw_materials = request.POST.getlist('raw_materials[]')
+        quantities = request.POST.getlist('quantities[]')
+
+        existing_raw_materials = BOMRawMaterial.objects.filter(bom=bom)
+
+        for material_id, quantity in zip(raw_materials, quantities):
+            raw_material = Stock.objects.get(id=material_id)
+
+            # Update existing raw material quantity or create new if not exist
+            bom_raw_material, created = BOMRawMaterial.objects.get_or_create(
+                bom=bom, raw_material=raw_material, defaults={'quantity': quantity}
+            )
+            if not created:
+                bom_raw_material.quantity = quantity
+                bom_raw_material.save()
+
+        # Remove raw materials that were not included in the update
+        existing_raw_materials.exclude(raw_material_id__in=raw_materials).delete()
+
+        messages.success(request, 'BOM updated successfully.')
+        return redirect('bom-list')
+
+    raw_materials = Stock.objects.all()
+    bom_raw_materials = BOMRawMaterial.objects.filter(bom=bom)
+    context = {'bom': bom, 'bom_raw_materials': bom_raw_materials, 'raw_materials': raw_materials, 'updating': True}
+    return render(request, 'production/update_bom.html', context)
+
 
 
 
@@ -1020,6 +1118,56 @@ def create_fgsfgbom(request):
     }
 
     return render(request, 'production/create_fgsfgbom.html', context)
+
+
+
+def update_fgsfgbom(request, fgsfg_id):
+    try:
+        fgsfg = FGSFGNEW.objects.get(id=fgsfg_id)
+    except FGSFGNEW.DoesNotExist:
+        messages.error(request, 'FG BOM not found.')
+        return redirect('production-fgsfgbomlist')
+
+    if request.method == 'POST':
+        sfg_ids = request.POST.getlist('sfg[]')
+        quantities_sfg = request.POST.getlist('quantity_sfg[]')
+        raw_materials = request.POST.getlist('raw_materials[]')
+        quantities_raw = request.POST.getlist('quantities[]')
+
+        # Clear existing SFG and Raw Material entries associated with the FG
+        MultipleSFG.objects.filter(fgsfgnew=fgsfg).delete()
+        RawMaterialEntry.objects.filter(fgsfgnew=fgsfg).delete()
+
+        # Save Semi-Finished Goods (SFG) for the FG entry
+        for sfg_id, quantity_sfg in zip(sfg_ids, quantities_sfg):
+            sfg = BOM.objects.get(id=sfg_id)
+            multiple_sfg = MultipleSFG(fgsfgnew=fgsfg, sfg=sfg, quantity_sfg=quantity_sfg)
+            multiple_sfg.save()
+
+        # Save Raw Materials for the FG entry
+        for material, quantity_raw in zip(raw_materials, quantities_raw):
+            raw_material = Stock.objects.get(id=material)
+            raw_material_entry = RawMaterialEntry(fgsfgnew=fgsfg, raw_material=raw_material, quantity_raw=quantity_raw)
+            raw_material_entry.save()
+
+        messages.success(request, 'FG BOM updated successfully.')
+        return redirect('production-fgsfgbomlist')
+
+    sfg_list = BOM.objects.all()
+    raw_materials = Stock.objects.all()
+    existing_sfg_entries = MultipleSFG.objects.filter(fgsfgnew=fgsfg)
+    existing_raw_material_entries = RawMaterialEntry.objects.filter(fgsfgnew=fgsfg)
+    context = {
+        'fgsfg': fgsfg,
+        'sfg_list': sfg_list,
+        'raw_materials': raw_materials,
+        'existing_sfg_entries': existing_sfg_entries,
+        'existing_raw_material_entries': existing_raw_material_entries,
+        'updating': True,
+    }
+
+    return render(request, 'production/update_fgsfgbom.html', context)
+
 
 
 

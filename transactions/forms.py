@@ -30,19 +30,22 @@ class SelectSupplierForm(forms.ModelForm):
 
 # form used to render a single stock item form
 class PurchaseItemForm(forms.ModelForm):
+    exp = forms.DateField(widget=forms.DateInput(attrs={'class': 'textinput form-control', 'type': 'date'}))
+    mfg = forms.DateField(widget=forms.DateInput(attrs={'class': 'textinput form-control', 'type': 'date'}))
+    receipt_date = forms.DateField(widget=forms.DateInput(attrs={'class': 'textinput form-control', 'type': 'date'}))
+   
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['stock'].queryset = Stock.objects.filter(is_deleted=False).order_by('name')
         self.fields['stock'].widget.attrs.update({'class': 'textinput form-control setprice stock', 'required': 'true'})
         self.fields['quantity'].widget.attrs.update({'class': 'textinput form-control setprice quantity', 'min': '0', 'required': 'true'})
         self.fields['perprice'].widget.attrs.update({'class': 'textinput form-control setprice price', 'min': '0', 'required': 'true'}) 
-     
-        
         self.fields['supplier_no'].widget.attrs.update({'class': 'textinput form-control'})
- 
+        self.fields['coa'].widget.attrs.update({'class': 'textinput form-control'})
+       
     class Meta:
         model = PurchaseItem
-        fields = ['stock', 'quantity', 'perprice','supplier_no']
+        fields = ['stock', 'exp', 'mfg', 'quantity', 'perprice', 'supplier_no','receipt_date','coa']
 
 # formset used to render multiple 'PurchaseItemForm'
 PurchaseItemFormset = formset_factory(PurchaseItemForm, extra=1)

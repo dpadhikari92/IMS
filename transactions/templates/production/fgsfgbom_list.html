@@ -37,6 +37,11 @@
                     >{{ bom.name }}</a
                   >
                 </td>
+                <td>
+                 
+                  <a href="{% url 'update-fgsfgbom' bom.id %}">Update</a>
+                               </td>
+                
               </tr>
               {% empty %}
               <tr>

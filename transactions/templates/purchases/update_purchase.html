@@ -1,17 +1,73 @@
-{% extends 'base.html' %}
-
+{% extends "base.html" %}
+{% load static %}
+{% block title %} Update Purchase Items {% endblock title %}
 {% block content %}
-  <h2>Update Purchase</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ formset.management_form }}
+   
+  <div class="container p-2">
+        <div class="row my-2">
+          <div class="col-md-12 shadow bg-light">
+            <center>
+              <h3>Update Purchase Items</h3>
+            </center>
+      
+            <form method="post" class="panel panel-default">
+              {% csrf_token %}
 
-    <table>
-      {{ formset.as_table }}
-    </table>
+              <div class="form-group col-md-3">
+                <label class="panel-body-text">Receipt date</label>
+                {% for form in formset|slice:":1" %}
+                  {{ form.receipt_date }}
+                {% endfor %}
+              </div>
+              {{ formset.management_form }}
 
-    <button type="submit">Update Purchase</button>
-  </form>
-
-  <a href="{% url 'purchases-list' %}">Back to Purchases</a>
-{% endblock %}
+      
+              <div id="stockitem">
+                <div class="panel-body">
+                  {% for form in formset %}
+                  <div class="row form-row">
+                    {{ form.id }} <!-- Hidden field for item ID -->
+                    <div class="form-group col-md-2">
+                      {{ form.stock.errors }}
+                      <label class="panel-body-text">Stock:</label>
+                      {{ form.stock }}
+                    </div>
+                    <!-- Add other form fields for existing items -->
+                    <div class="form-group col-md-1">
+                      <label class="panel-body-text">Price</label>
+                      {{ form.perprice }}
+                    </div>
+                    <div class="form-group col-md-1">
+                      {{ form.quantity.errors }}
+                      <label class="panel-body-text">Qty KG:</label>
+                      {{ form.quantity }}
+                    </div>
+                    <div class="form-group col-md-2">
+                      <label class="panel-body-text">Mfg Date</label>
+                      {{ form.mfg }}
+                    </div>
+                    <div class="form-group col-md-2">
+                      <label class="panel-body-text">Exp Date</label>
+                      {{ form.exp }}
+                    </div>
+                    <div class="form-group col-md-1">
+                      <label class="panel-body-text" for="{{ form.coa.id_for_label }}">COA No.:</label>
+                      {{ form.coa }}
+                  </div>
+                    <!-- ... (other form fields) ... -->
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <br />
+              <div class="align-middle p-3">
+                <button type="submit" class="btn btn-success">Update Items</button>
+                <a href="{% url 'select-supplier' %}" class="btn btn-danger">Go Back</a>
+                <a href="{% url 'purchases-list' %}" class="btn btn-secondary">Cancel</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endblock content %}
+      
