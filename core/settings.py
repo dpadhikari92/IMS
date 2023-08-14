@@ -27,7 +27,7 @@ SECRET_KEY = 'qyu(9l9v%^+r(vt#ecf+36#lis516#3bo5@bo-rd*d%a=!%8#!'
 DEBUG =True
 
 
-ALLOWED_HOSTS = ['ims-pied.vercel.app']
+ALLOWED_HOSTS = ['*']
 
 #ims-pied.vercel.app
 
@@ -152,6 +152,7 @@ USE_L10N = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR ,"staticfiles_build", "static")
+
 
 # bootstrap template crispy-form uses
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
