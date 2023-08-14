@@ -108,13 +108,12 @@
                         </td>
                         <td class="inner-box align-middle" style="width: 25%">
                           <input
-                            type="text"
-                            name="receipt_date"
-                            placeholder="dd-mm-yyyy"
-                            class="align-middle"
-                            style="border: 0; overflow: hidden"
-                            value="{% if billdetails.receipt_date %}{{ billdetails.receipt_date }}{% endif %}"
-                          />
+                              type="date"
+                              name="invoice"
+                              class="align-middle"
+                              style="border: 0; overflow: hidden"
+                              value="{% if billdetails.invoice %}{{ billdetails.invoice|date:'Y-m-d' }}{% endif %}"
+                            />
                         </td>
 
 
@@ -150,22 +149,7 @@
                         
 
                         <tr>
-                          <td
-                            class="inner-box"
-                            style="width: 25%; font-weight: bold"
-                          >
-                            &nbsp;Internal COA No.
-                          </td>
-                          <td class="inner-box align-middle" style="width: 25%">
-                            <input
-                              type="date"
-                              name="invoice"
-                              class="align-middle"
-                              style="border: 0; overflow: hidden"
-                              value="{% if billdetails.invoice %}{{ billdetails.invoice|date:'Y-m-d' }}{% endif %}"
-                            />
                          
-                          </td>
                         </tr>
                         <tr>
                           <td class="inner-box" style="font-weight: bold">
