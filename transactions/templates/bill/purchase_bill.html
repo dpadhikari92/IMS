@@ -158,12 +158,13 @@
                           </td>
                           <td class="inner-box align-middle" style="width: 25%">
                             <input
-                              type="text"
-                              name="destination"
+                              type="date"
+                              name="invoice"
                               class="align-middle"
                               style="border: 0; overflow: hidden"
-                              value="{% if billdetails.destination %}{{ billdetails.destination }}{% endif %}"
+                              value="{% if billdetails.invoice %}{{ billdetails.invoice|date:'Y-m-d' }}{% endif %}"
                             />
+                         
                           </td>
                         </tr>
                         <tr>

@@ -95,7 +95,7 @@ class PurchaseBillDetails(models.Model):
     receipt_date=models.CharField(max_length=50, blank=True, null=True)
     eway = models.CharField(max_length=50, blank=True, null=True)    
     veh = models.FloatField(max_length=50, blank=False,null=True)
-    destination = models.CharField(max_length=50, blank=True, null=True)
+    invoice = models.DateField(default=datetime.date.today().strftime('%Y-%m-%d'))
     po = models.CharField(max_length=50, blank=True, null=True)    
     cgst = models.FloatField(max_length=50, blank=True, null=True)
     sgst = models.FloatField(max_length=50, blank=True, null=True)
@@ -182,8 +182,7 @@ class SaleBillDetails(models.Model):
     eway = models.CharField(max_length=50, blank=True, null=True)    
     veh = models.CharField(max_length=50, blank=True, null=True)
     destination = models.CharField(max_length=50, blank=True, null=True)
-    po = models.CharField(max_length=50, blank=True, null=True)
-    
+    po = models.CharField(max_length=50, blank=True, null=True)    
     cgst = models.CharField(max_length=50, blank=True, null=True)
     sgst = models.CharField(max_length=50, blank=True, null=True)
     igst = models.CharField(max_length=50, blank=True, null=True)

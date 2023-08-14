@@ -430,21 +430,39 @@ class PurchaseBillView(View):
 
     def post(self, request, billno):
         form = PurchaseDetailsForm(request.POST)
+        
+   
+        invoice = request.POST.get('invoice')
+        if invoice:
+            invoice = datetime.datetime.strptime(invoice, '%Y-%m-%d').date()
+
+
+              
+        
         if form.is_valid():
+            
             billdetailsobj = get_object_or_404(PurchaseBillDetails, billno=billno)
             billdetailsobj.eway = form.cleaned_data['eway']
             billdetailsobj.veh = form.cleaned_data['veh']
-            billdetailsobj.destination = form.cleaned_data['destination']
+           
             billdetailsobj.po = form.cleaned_data['po']
             billdetailsobj.receipt_date = form.cleaned_data['receipt_date']
            
             billdetailsobj.sup_invoice_no = form.cleaned_data['sup_invoice_no']
-            billdetailsobj.mfg = form.cleaned_data['mfg']
-            billdetailsobj.exp = form.cleaned_data['exp']
+            if 'invoice' in form.cleaned_data:
+                invoice = form.cleaned_data['invoice']
+                if invoice:
+                    billdetailsobj.invoice = invoice
+
+            
+            
+            
             
             # Fetch total from PurchaseItem model
             purchase_items = PurchaseItem.objects.filter(billno=billno)
             total_price = purchase_items.aggregate(Sum('totalprice')).get('totalprice__sum', 0.0)
+           
+           
 
             # Apply calculations based on user input and fetched total
             if total_price:
@@ -462,6 +480,8 @@ class PurchaseBillView(View):
                 billdetailsobj.igst = str(igst)
                 billdetailsobj.freight = str(veh)
                 billdetailsobj.total = str(grand_total)
+            
+            billdetailsobj.invoice = invoice
 
             billdetailsobj.save()
             messages.success(request, "Bill details have been modified successfully")

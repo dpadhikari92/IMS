@@ -51,9 +51,11 @@ PurchaseItemFormset = formset_factory(PurchaseItemForm, extra=1)
 
 # form used to accept the other details for purchase bill
 class PurchaseDetailsForm(forms.ModelForm):
+    invoice = forms.DateField()
+    
     class Meta:
         model = PurchaseBillDetails
-        fields = ['eway','veh', 'destination', 'po', 'cgst', 'sgst', 'igst', 'freight' ,'total','sup_invoice_no','mfg','exp','receipt_date']
+        fields = ['eway','veh',  'po', 'cgst', 'sgst', 'igst', 'freight' ,'total','sup_invoice_no','mfg','exp','receipt_date','invoice']
 
 
 # form used for supplier
@@ -116,7 +118,7 @@ SaleItemFormset = formset_factory(SaleItemForm, extra=1)
 class SaleDetailsForm(forms.ModelForm):
     class Meta:
         model = SaleBillDetails
-        fields = ['eway','veh', 'destination', 'po', 'cgst', 'sgst', 'igst', 'cess', 'tcs', 'total']
+        fields = ['eway','veh',  'po', 'cgst', 'sgst', 'igst', 'cess', 'tcs', 'total']
 
 
 class ProductionForm(forms.ModelForm):
