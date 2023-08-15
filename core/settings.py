@@ -72,7 +72,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         # included 'templates' directory for django to access the html templates
-         'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': ["templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -151,8 +151,7 @@ USE_L10N = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR ,'staticfiles')
-STATICFILES_DIR=os.path.join(BASE_DIR ,'static')
+STATIC_ROOT = os.path.join(BASE_DIR ,"staticfiles", "static")
 
 
 # bootstrap template crispy-form uses
