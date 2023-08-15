@@ -13,7 +13,7 @@
 }
 
 #sidebar {
-  width: 250px;
+  width: 125px;
   position: fixed;
   top: 0;
   left: 0;
@@ -92,8 +92,8 @@ a.nav-button {
 .bottomleft {
   bottom: 0;
   position: absolute;
-  min-width: 250px;
-  max-width: 250px;
+  min-width: 200px;
+  max-width: 200px;
 }
 
 /* ---------------------------------------------------
@@ -116,9 +116,11 @@ a.nav-button {
   #sidebar {
     margin-left: -250px;
   }
+
   #sidebar.active {
     margin-left: 0;
   }
+
   #sidebarCollapse span {
     display: none;
   }
