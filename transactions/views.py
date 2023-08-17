@@ -1,4 +1,5 @@
 import datetime
+import decimal
 from random import choice
 from django.contrib.auth.decorators import login_required, permission_required
 from django import apps
@@ -309,8 +310,196 @@ class PurchaseUpdateView(View):
             return render(request, self.template_name, context)
 
 
+# used to download purchase report
+from datetime import datetime
+from django.template.loader import render_to_string
+from openpyxl import Workbook
 
+
+def purchase_report(request):
+    if request.method == 'POST':
+        from_date = request.POST.get('from_date')
+        to_date = request.POST.get('to_date')
+
+        # Convert the date strings to datetime objects
+        from_date = datetime.strptime(from_date, '%Y-%m-%d').date()
+        to_date = datetime.strptime(to_date, '%Y-%m-%d').date()
+
+        # Fetch PurchaseBill instances within the date range
+        purchase_bills = PurchaseBill.objects.filter(time__range=(from_date, to_date))
+
+        # Fetch related PurchaseItem instances using the retrieved PurchaseBill instances
+        purchase_items = PurchaseItem.objects.filter(billno__in=purchase_bills)
+
+        # Calculate total quantity for each item
+        item_totals = purchase_items.values('stock__name').annotate(total_quantity=Sum('quantity'))
+
+        context = {'item_totals': item_totals, 'from_date': from_date, 'to_date': to_date}
+
+        return render(request, 'purchases/purchase_report.html', context)
+
+    return render(request, 'purchases/purchase_report.html')
     
+    
+    
+# used to download purchase report
+def download_purchase_report(request):
+    if request.method == 'POST':
+        from_date = request.POST.get('from_date')
+        to_date = request.POST.get('to_date')
+
+        # Convert the date strings to datetime objects
+        from_date = datetime.strptime(from_date, '%b. %d, %Y').date()
+        to_date = datetime.strptime(to_date, '%b. %d, %Y').date()
+
+        # Fetch PurchaseBill instances within the date range
+        purchase_bills = PurchaseBill.objects.filter(time__range=(from_date, to_date))
+
+        # Fetch related PurchaseItem instances using the retrieved PurchaseBill instances
+        purchase_items = PurchaseItem.objects.filter(billno__in=purchase_bills)
+
+        # Calculate total quantity for each item
+        item_totals = purchase_items.values('stock__name').annotate(total_quantity=Sum('quantity'))
+
+        # Generate and download the Excel report
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="purchase_report.xlsx"'
+
+        wb = Workbook()
+        ws = wb.active
+
+        # Add From and To date
+        ws['A1'] = f'From: {from_date}'
+        ws['A2'] = f'To: {to_date}'
+
+        # Add headers
+        ws['A4'] = 'Item'
+        ws['B4'] = 'Total Quantity (Kg)'
+
+        # Add data
+        row = 5
+        for item_total in item_totals:
+            ws.cell(row=row, column=1, value=item_total['stock__name'])
+            ws.cell(row=row, column=2, value=item_total['total_quantity'])
+            row += 1
+
+        wb.save(response)
+        return response
+
+
+
+import openpyxl
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Font
+from django.http import HttpResponse
+from datetime import datetime
+from django.db.models import Sum, Case, When, Value, F, FloatField
+from django.db.models.functions import Coalesce, Cast
+from .models import Stock
+from django.shortcuts import render
+
+def inventory_report(request):
+    date_str = request.GET.get('date')
+    inventory_items = []
+
+    if date_str:
+        date = datetime.strptime(date_str, '%Y-%m-%d')
+        inventory_query = Stock.objects.filter(is_deleted=False)
+        inventory_items = inventory_query.annotate(
+            total_quantity=Coalesce(Sum(
+                Case(
+                    When(purchase_items__billno__purchasedetailsbillno__invoice__lte=date, then=F('purchase_items__quantity')),
+                    default=Value(0),
+                    output_field=FloatField()
+                )
+            ), Value(0), output_field=FloatField())
+        )
+
+        for item in inventory_items:
+            # Deduct production quantities based on the production date and BOM relationships
+            production_qty = Production.objects.filter(bom__raw_materials=item, production_date__lte=date).aggregate(
+                total_production=Coalesce(Sum('quantity'), Value(0), output_field=FloatField())
+            )['total_production']
+            
+            # Deduct SFG (semi-finished goods) production quantities based on the production date and BOM relationships
+            sfg_production_qty = fgproduction.objects.filter(bom__sfg__raw_materials=item, production_date__lte=date).aggregate(
+                total_production=Coalesce(Sum('quantity'), Value(0), output_field=FloatField())
+            )['total_production']
+            
+            item.total_quantity -= production_qty + sfg_production_qty
+    
+    context = {
+        'date': date_str,
+        'inventory_items': inventory_items,
+    }
+    return render(request, 'purchases/inventory_report.html', context)
+    
+def download_excel(request):
+    date_str = request.GET.get('date')
+    
+
+    inventory_items = []
+    if date_str:
+        date = datetime.strptime(date_str, '%Y-%m-%d')
+        inventory_query = Stock.objects.filter(is_deleted=False)
+        inventory_items = inventory_query.annotate(
+            total_quantity=Coalesce(Sum(
+                Case(
+                    When(purchase_items__billno__purchasedetailsbillno__invoice__lte=date, then=F('purchase_items__quantity')),
+                    default=Value(0),
+                    output_field=FloatField()
+                )
+            ), Value(0), output_field=FloatField())
+        )
+
+        for item in inventory_items:
+            # Deduct production quantities based on the production date and BOM relationships
+            production_qty = Production.objects.filter(bom__raw_materials=item, production_date__lte=date).aggregate(
+                total_production=Coalesce(Sum('quantity'), Value(0), output_field=FloatField())
+            )['total_production']
+            
+            # Deduct SFG (semi-finished goods) production quantities based on the production date and BOM relationships
+            sfg_production_qty = fgproduction.objects.filter(bom__sfg__raw_materials=item, production_date__lte=date).aggregate(
+                total_production=Coalesce(Sum('quantity'), Value(0), output_field=FloatField())
+            )['total_production']
+            
+            item.total_quantity -= production_qty + sfg_production_qty
+    
+
+
+    # Create a new Excel workbook
+    workbook = openpyxl.Workbook()
+    worksheet = workbook.active
+
+    # Write column headers
+    column_headers = ['Item Name', 'inventory level',]
+    for col_num, column_title in enumerate(column_headers, 1):
+        col_letter = get_column_letter(col_num)
+        cell = worksheet[f'{col_letter}1']
+        cell.value = column_title
+        cell.font = Font(bold=True)
+
+    # Populate data rows
+    for row_num, item in enumerate(inventory_items, start=2):
+        worksheet[f'A{row_num}'] = item.name
+
+        # Format total_quantity and total_quantity_date2 with trailing zeroes
+        decimal_places = 4
+        total_quantity = decimal.Decimal(item.total_quantity).quantize(decimal.Decimal(f'0.{decimal_places * "0"}'))
+        
+
+        worksheet[f'B{row_num}'] = total_quantity
+      
+
+    # Create an HTTP response with the Excel file content type
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=inventory_report.xlsx'
+
+    # Save the workbook to the response
+    workbook.save(response)
+
+    return response
+
 
 # used to delete a bill object
 class PurchaseDeleteView(SuccessMessageMixin, DeleteView):
@@ -434,7 +623,7 @@ class PurchaseBillView(View):
    
         invoice = request.POST.get('invoice')
         if invoice:
-            invoice = datetime.datetime.strptime(invoice, '%Y-%m-%d').date()
+            invoice = datetime.strptime(invoice, '%Y-%m-%d').date()
 
 
               
@@ -591,7 +780,7 @@ def produce_item(request):
         production_date = request.POST.get('production_date')# Convert quantity to float, defaulting to 0 if missing
         
         
-        production_date = datetime.datetime.strptime(production_date, '%Y-%m-%d').date()
+        production_date = datetime.strptime(production_date, '%Y-%m-%d').date()
         bom = BOM.objects.get(id=bom_id)
         
         # Check if inventory is sufficient

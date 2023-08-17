@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} Inventory Report {% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Inventory Report</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <form action="{% url 'purchase-inventory' %}" method="get" class="mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="date">Select Date:</label>
+                            <input type="date" class="form-control" id="date" name="date" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Generate Report</button>
+            </form>
+           
+            {% if inventory_items %}
+            <br/>
+          
+            <a href="{% url 'download_inventory_excel' %}?date={{ date }}" class="btn btn-primary">Download Excel</a>
+            <br/>
+            <h2 class="mt-4">Inventory Levels</h2>
+          
+           
+           
+            <br/>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Stock Name</th>
+                        <th>Total Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in inventory_items|dictsort:"name"%}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.total_quantity|floatformat:4 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+          
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

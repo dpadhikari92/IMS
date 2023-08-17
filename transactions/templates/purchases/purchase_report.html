@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} Purchase Item Summary {% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3 class="mb-4">Purchase Item Summary</h3>
+
+    <div class="card">
+        <div class="card-body">
+            {% if not from_date and not to_date %}
+            <form method="post" class="mb-4">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="from_date">From Date:</label>
+                    <input type="date" class="form-control" id="from_date" name="from_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="to_date">To Date:</label>
+                    <input type="date" class="form-control" id="to_date" name="to_date" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+            {% endif %}
+
+            {% if from_date and to_date %}
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              
+                <form method="post" action="{% url 'download_purchase_report' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="from_date" value="{{ from_date }}">
+                    <input type="hidden" name="to_date" value="{{ to_date }}">
+                    <button type="submit" class="btn btn-success">Download Excel Report</button>
+                </form>
+            </div>
+            <p>From: {{ from_date }}</p>
+            <p>To: {{ to_date }}</p>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Total Quantity (Kg)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item_total in item_totals %}
+                    <tr>
+                        <td>{{ item_total.stock__name }}</td>
+                        <td>{{ item_total.total_quantity }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}

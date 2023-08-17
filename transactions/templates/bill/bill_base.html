@@ -68,8 +68,11 @@
           ></a>
           <ul class="side-dropdown">
             <li>
-              <a href="{% url 'bom'%}">Create Bom</a>
+              <a href="{% url 'bom'%}">Create Bom SFG</a>
             </li>   
+            <li>
+              <a href="{% url 'production-fgsfgbom'%}">Create Bom FG</a>
+            </li> 
           
        
           </ul>
@@ -84,7 +87,7 @@
               <a href="{% url 'production'%}">Semi Finished Goods</a>
             </li>   
             <li>
-              <a href="{% url 'bomfg' %}">Finished Goods</a>
+              <a href="{% url 'production-sfg' %}">Finished Goods</a>
             </li>
        
           </ul>
@@ -165,23 +168,36 @@
         <li>
           <a href="{% url 'new-stock'%}"
             ><i class="bx bxs-inbox icon"></i>Production Record
-            <i class="bx fa-solid fa-store icon-right"></i
+            <i class="bx fa-solid fa-clipboard icon-right"></i
           ></a>
           <ul class="side-dropdown">
            
             <li>
-              <a href="{% url 'production-leadtimelist'%}">SFG Traceability </a>
+              <a href="{% url 'production-leadtimelist'%}">SFG  </a>
             </li>
          
             <li>
-              <a href="{% url 'production-leadtimelistfg'%}">FG Traceability</a>
-            </li>
-
+              <a href="{% url 'production-leadtimelistfg'%}">FG Production</a>           </li>
           </ul>
         </li>
         
      
         </li>
+
+        
+        <li>
+          <a href="{% url 'new-stock'%}"
+            ><i class="bx bxs-inbox icon"></i>Report
+            <i class="bx fa-solid fa-clipboard icon-right"></i
+          ></a>
+          <ul class="side-dropdown">
+           
+            <li>
+              <a href="{% url 'purchase-report'%}">Purchase </a>
+            </li>
+         
+            <li>
+              <a href="{% url 'purchase-inventory'%}">Inventory</a>           </li>
 
         <li class="divider" data-text="table and forms">Table and forms</li>
 

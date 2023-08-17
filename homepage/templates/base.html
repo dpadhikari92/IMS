@@ -166,7 +166,7 @@
         <li>
           <a href="{% url 'new-stock'%}"
             ><i class="bx bxs-inbox icon"></i>Production Record
-            <i class="bx fa-solid fa-store icon-right"></i
+            <i class="bx fa-solid fa-clipboard icon-right"></i
           ></a>
           <ul class="side-dropdown">
            
@@ -176,7 +176,8 @@
          
             <li>
               <a href="{% url 'production-leadtimelistfg'%}">FG Production</a>           </li>
-            
+
+
           
            
              
@@ -189,6 +190,22 @@
         
      
         </li>
+
+        
+        <li>
+          <a href="{% url 'new-stock'%}"
+            ><i class="bx bxs-inbox icon"></i>Report
+            <i class="bx fa-solid fa-clipboard icon-right"></i
+          ></a>
+          <ul class="side-dropdown">
+           
+            <li>
+              <a href="{% url 'purchase-report'%}">Purchase </a>
+            </li>
+         
+            <li>
+              <a href="{% url 'purchase-inventory'%}">Inventory</a>           </li>
+      
 
         <li class="divider" data-text="table and forms">Table and forms</li>
 
