@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="mb-4">Inventory Report</h1>
+    <h3 class="mb-4">Opening Inventory Levels</h3>
 
     <div class="card">
         <div class="card-body">
@@ -26,7 +26,7 @@
           
             <a href="{% url 'download_inventory_excel' %}?date={{ date }}" class="btn btn-primary">Download Excel</a>
             <br/>
-            <h2 class="mt-4">Inventory Levels</h2>
+           
           
            
            
@@ -35,7 +35,7 @@
                 <thead>
                     <tr>
                         <th>Stock Name</th>
-                        <th>Total Quantity</th>
+                        <th>Quantity</th>
                     </tr>
                 </thead>
                 <tbody>
