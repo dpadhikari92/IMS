@@ -606,7 +606,7 @@ class PurchaseBillView(View):
 
     def get(self, request, billno):
         bill = get_object_or_404(PurchaseBill, billno=billno)
-        items = PurchaseItem.objects.filter(billno=billno)
+        items = PurchaseItem.objects.filter(billno=billno).order_by('id')
         billdetails = get_object_or_404(PurchaseBillDetails, billno=billno)
 
         context = {
