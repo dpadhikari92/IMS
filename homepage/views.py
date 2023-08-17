@@ -35,3 +35,12 @@ class HomeView(View):
 
 class AboutView(TemplateView):
     template_name = "about.html"
+
+
+def user(request):
+    # Your logic here
+    context = {
+        'user': request.user,
+        # Other context variables
+    }
+    return render(request, 'base.html', context)
