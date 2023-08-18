@@ -1417,7 +1417,7 @@ def sfg_production_view(request):
         quantity = float(request.POST.get('quantity', 0))
         production_date = request.POST.get('production_date')
         
-        production_date = datetime.datetime.strptime(production_date, '%Y-%m-%d').date()
+        production_date = datetime.strptime(production_date, '%Y-%m-%d').date()
 
         bom = FGSFGNEW.objects.get(id=bom_id)
         raw_material_entries = bom.rawmaterialentry_set.all()
