@@ -41,10 +41,11 @@ class PurchaseItemForm(forms.ModelForm):
         self.fields['perprice'].widget.attrs.update({'class': 'textinput form-control setprice price', 'min': '0', 'required': 'true'}) 
         self.fields['supplier_no'].widget.attrs.update({'class': 'textinput form-control'})
         self.fields['coa'].widget.attrs.update({'class': 'textinput form-control'})
+        self.fields['purchase_code'].widget.attrs.update({'class': 'textinput form-control'})
        
     class Meta:
         model = PurchaseItem
-        fields = ['stock', 'exp', 'mfg', 'quantity', 'perprice', 'supplier_no','coa']
+        fields = ['stock', 'exp', 'mfg', 'quantity', 'perprice', 'supplier_no','coa','purchase_code']
 
 # formset used to render multiple 'PurchaseItemForm'
 PurchaseItemFormset = formset_factory(PurchaseItemForm, extra=1)

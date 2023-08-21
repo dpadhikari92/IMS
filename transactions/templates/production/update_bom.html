@@ -27,7 +27,7 @@
         </ul>
       </div>
       {% endif %}
-      
+
       <form method="post">
         {% csrf_token %}
         <div class="form-group">
@@ -39,8 +39,7 @@
             id="name"
             placeholder="Enter BOM Name"
             value="{{ bom.name }}"  <!-- Populate name if updating -->
-          
-       
+          />
         </div>
         <div class="form-group">
           <label for="code">BOM Code:</label>
@@ -51,8 +50,10 @@
             id="code"
             placeholder="Enter BOM Code"
             value="{{ bom.code }}"  <!-- Populate code if updating -->
-       
+          />
         </div>
+      
+
         <br />
         <div id="raw-materials-container">
           {% for bom_raw_material in bom_raw_materials %}

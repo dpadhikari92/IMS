@@ -4,8 +4,6 @@ from random import choice
 from django.contrib.auth.decorators import login_required, permission_required
 from django import apps
 from django.db.models import Q
-# Import the transaction module
-
 from django.db.models import Sum
 from django.forms import formset_factory, modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
@@ -25,8 +23,6 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from io import BytesIO
 from reportlab.pdfgen import canvas
-
-
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -54,6 +50,7 @@ from .models import (
     RawMaterialEntry,
     MultipleSFG,
 )
+
 from .forms import (
     PurchaseItemForm,
     SelectSupplierForm, 
@@ -83,6 +80,7 @@ class SupplierListView(ListView):
     template_name = "suppliers/suppliers_list.html"
     queryset = Supplier.objects.filter(is_deleted=False)
     paginate_by = 10
+
 
 
 # used to add a new supplier
@@ -244,9 +242,6 @@ class PurchaseCreateView(View):
             'supplier': supplierobj
         }
         return render(request, self.template_name, context)
-
-
-
 
 
 class PurchaseUpdateView(View):
@@ -433,6 +428,7 @@ def inventory_report(request):
         'inventory_items': inventory_items,
     }
     return render(request, 'purchases/inventory_report.html', context)
+
     
 def download_excel(request):
     date_str = request.GET.get('date')
@@ -577,6 +573,7 @@ class SaleCreateView(View):
             'formset'   : formset,
         }
         return render(request, self.template_name, context)
+
 
 
 # used to delete a bill object
@@ -933,10 +930,17 @@ def update_bom(request, bom_id):
         return redirect('bom-list')
 
     if request.method == 'POST':
+        bom_name = request.POST['name']
+        code = request.POST['code']
         raw_materials = request.POST.getlist('raw_materials[]')
         quantities = request.POST.getlist('quantities[]')
 
         existing_raw_materials = BOMRawMaterial.objects.filter(bom=bom)
+
+        # Update BOM name and code
+        bom.name = bom_name
+        bom.code = code
+        bom.save()
 
         for material_id, quantity in zip(raw_materials, quantities):
             raw_material = Stock.objects.get(id=material_id)
@@ -1367,12 +1371,20 @@ def update_fgsfgbom(request, fgsfg_id):
     except FGSFGNEW.DoesNotExist:
         messages.error(request, 'FG BOM not found.')
         return redirect('production-fgsfgbomlist')
+        
 
-    if request.method == 'POST':
+    if request.method == 'POST':        
+        name=request.POST['name']
+        code=request.POST['code']
         sfg_ids = request.POST.getlist('sfg[]')
         quantities_sfg = request.POST.getlist('quantity_sfg[]')
         raw_materials = request.POST.getlist('raw_materials[]')
         quantities_raw = request.POST.getlist('quantities[]')
+        
+        
+        fgsfg.name = name
+        fgsfg.code = code
+        fgsfg.save()
 
         # Clear existing SFG and Raw Material entries associated with the FG
         MultipleSFG.objects.filter(fgsfgnew=fgsfg).delete()
@@ -1490,7 +1502,6 @@ def sfg_production_view(request):
 
 
 
-
 def generate_pdfsfgfg(bom, quantity):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
@@ -1584,7 +1595,6 @@ def generate_pdfsfgfg(bom, quantity):
 
     buffer.seek(0)
     return buffer
-
 
 
 

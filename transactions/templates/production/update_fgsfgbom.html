@@ -16,18 +16,19 @@
       </div>
 
       <form method="post" action="{% url 'update-fgsfgbom' fgsfg.id %}">
+
         {% csrf_token %}
+
         <div class="form-group">
-          <label for="name">FG BOM Name:</label>
+          <label for="name">SFG BOM Name:</label>
           <input
             type="text"
             class="form-control"
             name="name"
             id="name"
             placeholder="Enter BOM Name"
-            required
-            value="{{ fgsfg.name }}"
-          />
+            value="{{ fgsfg.name }}"  <!-- Populate name if updating -->
+          
         </div>
         <div class="form-group">
           <label for="code">BOM Code:</label>
@@ -37,10 +38,12 @@
             name="code"
             id="code"
             placeholder="Enter BOM Code"
-            required
-            value="{{ fgsfg.code }}"
-          />
+            value="{{ fgsfg.code }}"  <!-- Populate code if updating -->
+          
         </div>
+
+        
+
         <br />
 
         <!-- SFGs section -->

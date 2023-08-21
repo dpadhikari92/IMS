@@ -59,7 +59,7 @@ class PurchaseItem(models.Model):
     mfg = models.DateField(default=datetime.date.today)  # Add the mfg field
     receipt_date = models.DateField(default=datetime.date.today)
     quantity = models.FloatField(default=1.0)
-    perprice = models.IntegerField(default=1)
+    perprice = models.FloatField(default=1)
     totalprice = models.IntegerField(default=1)
     coa = models.CharField(max_length=50, blank=True, null=True)
     supplier_no = models.CharField(max_length=50, blank=True, null=True)
