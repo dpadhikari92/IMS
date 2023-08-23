@@ -62,3 +62,9 @@ class StockDeleteView(View):                                                    
         stock.save()                                               
         messages.success(request, self.success_message)
         return redirect('inventory')
+    
+    
+def rm_stock_list(request):
+    rm_stocks = Stock.objects.filter(is_deleted=False).order_by('-item_code')
+    context = {'rm_stocks': rm_stocks}
+    return render(request, 'rm_stock_list.html', context)

@@ -1,16 +1,11 @@
 from decimal import ROUND_HALF_UP, Decimal
 from django.db import models
 from django.shortcuts import render, get_object_or_404
-
 from inventory.models import Stock
 from django.utils import timezone
 import datetime
 from django.db.models import Sum
-
 from django.db import transaction
-
-
-
 
 
 #contains suppliers
