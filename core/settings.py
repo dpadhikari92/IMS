@@ -24,12 +24,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'qyu(9l9v%^+r(vt#ecf+36#lis516#3bo5@bo-rd*d%a=!%8#!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG =True
+DEBUG = True
 
 
 ALLOWED_HOSTS = ['*']
 
-#ims-pied.vercel.app
+# ims-pied.vercel.app
 
 # Application definition
 
@@ -55,7 +55,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -101,7 +101,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',                      
+        'NAME': 'railway',
         'USER': 'postgres',
         'PASSWORD': '4hidQywBQX2X862DE8xH',
         'HOST': 'containers-us-west-41.railway.app',
@@ -109,7 +109,7 @@ DATABASES = {
     }
 }
 
-#DATABASES['default'] = dj_database_url.config()
+# DATABASES['default'] = dj_database_url.config()
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -145,14 +145,14 @@ USE_I18N = True
 
 USE_L10N = True
 
-#USE_TZ = True
+# USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR ,"staticfiles", "static")
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles", "static")
 
 
 # bootstrap template crispy-form uses
@@ -169,6 +169,3 @@ LOGIN_REQUIRED_IGNORE_VIEW_NAMES = [                    # urls ignored by the lo
     'logout',
     'about',
 ]
-
-
-
